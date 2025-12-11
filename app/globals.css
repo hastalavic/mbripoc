@@ -24,3 +24,35 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+html, body {
+  min-height: 100%;
+  overflow-x: hidden; /* 只鎖住橫向 */
+  overflow-y: auto;    /* 垂直可以捲動 */
+}
+
+/* Hide scrollbar (Chrome / Safari / Edge) */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar (Firefox) */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+/* --- Fully suppress macOS overlay scrollbars using masking --- */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Mask technique: hide macOS overlay scrollbar completely */
+.scrollbar-none {
+  -webkit-mask-image: linear-gradient(black, black);
+  mask-image: linear-gradient(black, black);
+}
