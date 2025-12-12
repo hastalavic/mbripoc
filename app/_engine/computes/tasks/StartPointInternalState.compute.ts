@@ -6,7 +6,7 @@
  */
 
 import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
-import { computeTotalRequirement } from "./RequirementAggregator.compute";
+import { computeTotalRequirement } from "../Aggregators/RequirementAggregator.compute";
 
 export interface ElementInternalState {
   elementId: string;
