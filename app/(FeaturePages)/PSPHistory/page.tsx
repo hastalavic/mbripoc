@@ -21,6 +21,14 @@ export default function PSPHistoryPage() {
     }
   }, []);
 
+  const [startPoints, setStartPoints] = useState<any[]>([]);
+  useEffect(() => {
+    const stored = localStorage.getItem("psp_startpoint_history_v1");
+    if (stored) {
+      try { setStartPoints(JSON.parse(stored)); } catch {}
+    }
+  }, []);
+
   // -----------------------------
   // UTC → 本地時間（台北）
   // -----------------------------
@@ -39,6 +47,23 @@ export default function PSPHistoryPage() {
       {logs.length === 0 && (
         <p className="text-zinc-500">目前沒有任何生理紀錄。</p>
       )}
+
+      <h2 className="text-xl font-semibold mt-8">初始存量紀錄</h2>
+      {startPoints.length === 0 && (
+        <p className="text-zinc-500">目前沒有任何初始存量紀錄。</p>
+      )}
+      <div className="space-y-4">
+        {startPoints.map((sp, index) => (
+          <div key={sp.id || index} className="border border-zinc-300 dark:border-zinc-700 rounded-lg p-4">
+            <div className="text-sm text-zinc-500 mb-2">
+              {formatDate(sp.timestamp)}
+            </div>
+            <pre className="text-xs whitespace-pre-wrap">
+              {JSON.stringify(sp, null, 2)}
+            </pre>
+          </div>
+        ))}
+      </div>
 
       <div className="space-y-4">
         {logs.map((entry, index) => {

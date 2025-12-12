@@ -5,6 +5,7 @@
 // -------------------------------------------------------
 
 import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
+import { v4 as uuid } from "uuid";
 
 // ★ 單筆生理狀態紀錄
 export interface PhysioLogEntry {
@@ -42,16 +43,22 @@ function saveLog(log: PhysioLogEntry[]) {
 }
 
 // ★ 真正的動態紀錄陣列（持久化）
-export const LogPhysioDynamic: PhysioLogEntry[] = loadInitialLog();
+const _physioLog: PhysioLogEntry[] = loadInitialLog();
+
+export function LogPhysioDynamic(pspState: ProfileFormState, timestamp: string) {
+  const entry: PhysioLogEntry = { id: uuid(), timestamp, pspState };
+  _physioLog.push(entry);
+  saveLog(_physioLog);
+}
 
 // ★ 封裝 push（確保自動儲存）
 export function addPhysioLog(entry: PhysioLogEntry) {
-  LogPhysioDynamic.push(entry);
-  saveLog(LogPhysioDynamic);
+  _physioLog.push(entry);
+  saveLog(_physioLog);
 }
 
 // ★ 清除所有紀錄
 export function resetPhysioLog() {
-  LogPhysioDynamic.length = 0;
+  _physioLog.length = 0;
   localStorage.removeItem(STORAGE_KEY);
 }

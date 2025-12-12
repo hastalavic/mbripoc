@@ -1,8 +1,11 @@
 /**
- * PSP_types.ts
- * 個體生理狀態參數 (Physiological State Parameters, PSP)
- * 定義：NRR（需求量）、UL（上限）、MBFST（負面因子安全線）、BDRST（風險安全線）
- * 所有計算邏輯會在 PSP_compute.ts 中實作
+ 所有 PSP 個體化計算邏輯由 _engine/computes/ 底下的多個引擎共同實作：
+- MacroNutriNeedEngine.compute.ts（巨量營養素需求）
+- MicroNutriNeedEngine.compute.ts（微量營養素需求）
+- RequirementAggregator.compute.ts（合併需求模型）
+- StartPointInternalState.compute.ts（初始存量推估）
+- Homeostasis.compute.ts（生理迴圈模擬）
+（本檔案僅負責定義 PSP 的數據結構）
  */
 
 /* --------------------------

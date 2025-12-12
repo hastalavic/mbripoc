@@ -8,9 +8,9 @@
 
 import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
 import {
-  LifespanNutritionRequirements,
+  LifespanMicroNutriNeeds,
   AgeRangeRequirement,
-} from "@/app/_engine/data/LifespanNutritionRequirements";
+} from "@/app/_engine/data/LifespanMicroNutriNeed.data";
 
 // --- 計算輸出結構 ---
 export interface BaseRequirementOutput {
@@ -29,8 +29,8 @@ export interface BaseRequirementOutput {
   leanMassUsed: number | null;
 }
 
-// 目前的營養素 Key 直接來自 LifespanNutritionRequirements
-export type NutrientKey = keyof typeof LifespanNutritionRequirements;
+// 目前的營養素 Key 直接來自 LifespanMicroNutriNeeds
+export type NutrientKey = keyof typeof LifespanMicroNutriNeeds;
 
 // --- 單位定義（先針對現有維生素與礦物質） ---
 const NutrientUnits: Record<NutrientKey, string> = {
@@ -117,9 +117,9 @@ export function computeBaseRequirement(
 
   const result = {} as Record<NutrientKey, BaseRequirementOutput>;
 
-  (Object.keys(LifespanNutritionRequirements) as NutrientKey[]).forEach(
+  (Object.keys(LifespanMicroNutriNeeds) as NutrientKey[]).forEach(
     (key) => {
-      const rows = LifespanNutritionRequirements[key];
+      const rows = LifespanMicroNutriNeeds[key];
       const unit = NutrientUnits[key] ?? "";
 
       const row = findAgeRow(rows, age);

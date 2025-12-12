@@ -1,5 +1,5 @@
 // app/_engine/homeostasis.ts
-import { HomeostasisState } from "../types/HomeostasisState_types";
+import { HomeostasisState } from "../../types/HomeostasisState_types";
 
 export const HomeostasisEngine = {
 

@@ -15,7 +15,7 @@ export interface NutrientRequirementTable {
   [nutrientKey: string]: AgeRangeRequirement[];
 }
 
-export const LifespanNutritionRequirements: NutrientRequirementTable = {
+export const LifespanMicroNutriNeeds: NutrientRequirementTable = {
   // ============================================================
   // ★ 維生素需求（Vitamins）
   // * 完整生命週期需求表（符合 NIH / IOM RDA）

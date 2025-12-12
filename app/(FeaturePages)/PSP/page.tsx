@@ -2,10 +2,12 @@
 
 import MBRI, { ProfileFormState, defaultProfile } from "@/app/Barrel";
 import { useState } from "react";
+import ButtonStartPointStateGenerator from "@/app/(FeaturePages)/PSP/components/ButtonStartPointStateGenerator.component";
 
 export default function BioSetupPage() {
   const [form, setForm] = useState<ProfileFormState>(defaultProfile);
   const [pspTimestamp, setPspTimestamp] = useState<string>("");
+  const [startPointTimestamp, setStartPointTimestamp] = useState<string>("");
 
   MBRI.usePSPLocalStorage(form, setForm, defaultProfile);
 
@@ -26,11 +28,6 @@ export default function BioSetupPage() {
 
           {/* 左欄：基本資料 + PSPForm */}
           <div className="space-y-6">
-            <MBRI.DateTimePicker
-              label="生理狀態記錄時間"
-              value={pspTimestamp}
-              onChange={setPspTimestamp}
-            />
             <MBRI.ProfileSettingsForm
               form={form}
               update={update}
@@ -41,10 +38,28 @@ export default function BioSetupPage() {
               form={form}
               update={update}
             />
-            <MBRI.ButtonSavePSP
-              form={form}
-              timestamp={pspTimestamp}
-            />
+            <div className="border border-zinc-300 rounded-lg p-4 space-y-4">
+              <MBRI.DateTimePicker
+                label="生理狀態記錄時間"
+                value={pspTimestamp}
+                onChange={setPspTimestamp}
+              />
+              <MBRI.ButtonSavePSP
+                form={form}
+                timestamp={pspTimestamp}
+              />
+            </div>
+            <div className="space-y-4 border border-zinc-300 rounded-lg p-4">
+              <MBRI.DateTimePicker
+                label="初始存量時間"
+                value={startPointTimestamp}
+                onChange={setStartPointTimestamp}
+              />
+              <ButtonStartPointStateGenerator
+                form={form}
+                timestamp={startPointTimestamp}
+              />
+            </div>
           </div>
 
           {/* 右欄：Debug + Summary */}

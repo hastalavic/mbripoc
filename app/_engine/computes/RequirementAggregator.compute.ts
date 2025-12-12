@@ -7,8 +7,8 @@
 // ---------------------------------------------------------
 
 import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
-import { computeBaseRequirement } from "./MicroNutriNeedEngine.compute";
-import { computeMacronutrientRequirements } from "./MacroNutriNeedEngine.compute";
+import { computeBaseRequirement } from "./Core/MicroNutriNeedEngine.compute";
+import { computeMacronutrientRequirements } from "./Core/MacroNutriNeedEngine.compute";
 
 export interface TotalRequirementOutput {
   macros: {
