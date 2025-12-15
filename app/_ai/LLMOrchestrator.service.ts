@@ -11,8 +11,9 @@ import { GeminiProvider } from './providers/gemini.provider';
 
 /**
  * 根據食物名稱生成模擬的營養分析結果。
+ * * ✨ 修正：加上 export 關鍵字，使其能夠在 route.ts 中被調用。
  */
-function getMockAnalysis(foodName: string): NutritionAnalysis {
+export function getMockAnalysis(foodName: string): NutritionAnalysis {
     const lowerInput = foodName.toLowerCase();
     let mock: NutritionAnalysis;
 

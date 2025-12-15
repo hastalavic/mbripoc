@@ -42,13 +42,14 @@ export interface LLMUsage {
  * AI 服務回應的元數據 (Metadata)
  */
 export interface LLMResponseMetadata {
-  provider: string; // e.g., 'gemini', 'openai', 'mock-simulator'
-  model: string;    // e.g., 'gemini-1.5-flash'
-  latency: number;  // 毫秒
-  usage?: LLMUsage; // 使用量統計
-  validated?: boolean; // 數據是否通過本地 Zod 驗證
-  timestamp: string; // ISO 格式時間戳
-  source: 'real-ai' | 'mock-fallback' | 'cache'; // 數據來源
+    provider: 'gemini' | 'mock-simulator';
+    model: string;
+    latency: number;
+    tokens: number; // 👈 確保加入這行！
+    validated: boolean;
+    timestamp: string;
+    source: string;
+    // ...
 }
 
 /**

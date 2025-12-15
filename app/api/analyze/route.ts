@@ -1,7 +1,11 @@
+// app/api/analyze/route.ts
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { NutritionAnalysisSchema, type NutritionAnalysis } from '@/app/_ai/types/nutrition.schema';
 import { GeminiProvider } from '@/app/_ai/providers/gemini.provider';
+// ✨ 修正 1：導入 getMockAnalysis，避免重複邏輯
+import { getMockAnalysis } from '@/app/_ai/LLMOrchestrator.service'; 
+
 
 // 定義請求體驗證 Schema
 const AnalyzeRequestSchema = z.object({
@@ -46,6 +50,8 @@ export async function GET(request: Request) {
 
 // 處理 POST 請求 - 食物分析端點
 export async function POST(request: Request) {
+  const FOOD_ANALYSIS_LATENCY = 500; // 模擬延遲時間
+  
   try {
     const rawBody = await request.json();
     const validatedRequest = AnalyzeRequestSchema.parse(rawBody);
@@ -60,9 +66,6 @@ export async function POST(request: Request) {
       console.log('🚀 使用 Gemini AI 分析食物...');
       
       try {
-        // 導入 GeminiProvider
-    
-        
         // 創建 GeminiProvider 實例
         const geminiProvider = new GeminiProvider({ 
           apiKey: geminiKey, 
@@ -91,7 +94,10 @@ export async function POST(request: Request) {
               model: 'gemini-1.5-flash',
               validated: true,
               timestamp: new Date().toISOString(),
-              source: 'real-ai'
+              source: 'real-ai',
+              // ✨ 修正 2：補上 latency 和 tokens 屬性
+              latency: 0, 
+              tokens: 0,
             }
           }
         });
@@ -108,18 +114,14 @@ export async function POST(request: Request) {
     // =========== 降級：模擬數據方案 ===========
     console.log('⚠️ 使用模擬數據（降級方案）');
     
-    // 根據輸入的關鍵詞返回不同的模擬數據
-    let mockData: any;
-    const lowerInput = foodInput.toLowerCase();
+    // ✨ 修正 3：調用 getMockAnalysis 取得模擬數據，確保 mockData 不會是 undefined
+    const mockData = getMockAnalysis(foodInput);
     
-    // ... 保持你現有的所有模擬數據判斷邏輯不變 ...
-    // [你的蘋果、雞腿便當、沙拉等模擬數據代碼]
-    
-    // 使用 Zod 驗證模擬數據的結構
+    // 使用 Zod 驗證模擬數據的結構 (這是必要的步驟)
     const validatedAnalysis = NutritionAnalysisSchema.parse(mockData);
     
-    // 模擬AI處理延遲（500毫秒）
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // 模擬AI處理延遲
+    await new Promise(resolve => setTimeout(resolve, FOOD_ANALYSIS_LATENCY));
     
     // 返回模擬數據
     return NextResponse.json({ 
@@ -131,10 +133,12 @@ export async function POST(request: Request) {
         metadata: {
           provider: 'mock-simulator',
           model: 'nutrition-db-v1',
-          latency: '500ms',
+          // ✨ 修正 4：latency 使用數字型別 (number)
+          latency: FOOD_ANALYSIS_LATENCY, 
           tokens: 0,
           validated: true,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          source: 'mock-fallback', // 保持與 LLMOrchestrator 一致
         }
       }
     });
