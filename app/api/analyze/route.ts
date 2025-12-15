@@ -1,24 +1,25 @@
 import { NextResponse } from 'next/server';
-import { llmOrchestrator } from '@/app/_ai/LLMOrchestrator.service';
+import { z } from 'zod';
+import { NutritionAnalysisSchema, type NutritionAnalysis } from '@/app/_ai/types/nutrition.schema';
 
+// 定義請求體驗證 Schema
+const AnalyzeRequestSchema = z.object({
+  food: z.string().min(1, '食物名稱不能為空').max(200),
+  text: z.string().optional(),
+});
+
+// 處理 GET 請求 - 健康檢查端點
 export async function GET(request: Request) {
-  // 添加這行來檢查環境變數
   console.log('🔧 === 環境變數檢查開始 ===');
   console.log('DEEPSEEK_API_KEY 存在?', !!process.env.DEEPSEEK_API_KEY);
   console.log('DEEPSEEK_API_KEY 前10位:', process.env.DEEPSEEK_API_KEY?.substring(0, 10) + '...');
   console.log('OPENAI_API_KEY 存在?', !!process.env.OPENAI_API_KEY);
-  
-  // 檢查 LLMOrchestrator 狀態
-  console.log('🔄 LLMOrchestrator 狀態:');
-  const providers = llmOrchestrator.getAvailableProviders();
-  console.log('可用 Providers:', providers);
   
   return NextResponse.json({ 
     status: 'ok',
     endpoint: '/api/analyze',
     message: 'Nutrition Analysis API is working',
     timestamp: new Date().toISOString(),
-    availableProviders: providers,
     envCheck: {
       deepseek: !!process.env.DEEPSEEK_API_KEY,
       deepseekKeyPreview: process.env.DEEPSEEK_API_KEY?.substring(0, 5) + '...',
@@ -27,26 +28,29 @@ export async function GET(request: Request) {
   });
 }
 
+// 處理 POST 請求 - 食物分析端點
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const foodInput = body.food || body.text || '';
+    // 驗證請求體格式
+    const rawBody = await request.json();
+    const validatedRequest = AnalyzeRequestSchema.parse(rawBody);
+    const foodInput = validatedRequest.food;
     
     console.log(`🔍 收到食物: "${foodInput}"`);
     
-    // =========== 开始：模拟数据方案 ===========
-    console.log('⚠️ AI 服务暂时有问题，使用模拟数据');
+    // =========== 開始：模擬數據方案 ===========
+    console.log('⚠️ AI 服務暫時有問題，使用模擬數據');
     
-    // 根据输入的关键词返回不同的模拟数据
-    let mockData;
+    // 根據輸入的關鍵詞返回不同的模擬數據
+    let mockData: NutritionAnalysis;
     const lowerInput = foodInput.toLowerCase();
     
-    // 1. 苹果
+    // 1. 蘋果
     if (lowerInput.includes('蘋果') || lowerInput.includes('apple')) {
       mockData = {
         foodName: "蘋果",
-        description: "新鲜苹果，富含膳食纤维和维生素C",
-        servingSize: "1颗（约150克）",
+        description: "新鮮蘋果，富含膳食纖維和維生素C",
+        servingSize: "1顆（約150克）",
         nutrients: {
           calories: 95,
           protein: 0.5,
@@ -55,9 +59,6 @@ export async function POST(request: Request) {
           fiber: 4.4,
           sugar: 19,
           sodium: 2,
-          cholesterol: 0,
-          saturatedFat: 0.1,
-          transFat: 0
         },
         dbsg: {
           digestibility: 92,
@@ -65,15 +66,15 @@ export async function POST(request: Request) {
           satiety: 65,
           glycemicIndex: 36
         },
-        healthTags: ["低热量", "高纤维", "维生素C丰富", "抗氧化"],
+        healthTags: ["低熱量", "高纖維", "維生素C豐富", "抗氧化"],
         warnings: []
       };
     } 
-    // 2. 鸡腿便当
+    // 2. 雞腿便當
     else if (lowerInput.includes('雞腿') || lowerInput.includes('便當') || lowerInput.includes('饭')) {
       mockData = {
-        foodName: "鸡腿便当",
-        description: "炸鸡腿配白饭和配菜",
+        foodName: "雞腿便當",
+        description: "炸雞腿配白飯和配菜",
         servingSize: "1份",
         nutrients: {
           calories: 650,
@@ -83,9 +84,6 @@ export async function POST(request: Request) {
           fiber: 4,
           sugar: 8,
           sodium: 850,
-          cholesterol: 95,
-          saturatedFat: 7,
-          transFat: 0.5
         },
         dbsg: {
           digestibility: 78,
@@ -93,15 +91,15 @@ export async function POST(request: Request) {
           satiety: 85,
           glycemicIndex: 70
         },
-        healthTags: ["高蛋白", "均衡餐点"],
-        warnings: ["钠含量偏高", "油炸食物"]
+        healthTags: ["高蛋白", "均衡餐點"],
+        warnings: ["鈉含量偏高", "油炸食物"]
       };
     } 
     // 3. 沙拉
     else if (lowerInput.includes('沙拉') || lowerInput.includes('salad')) {
       mockData = {
-        foodName: "鸡肉沙拉",
-        description: "鸡胸肉配生菜沙拉",
+        foodName: "雞肉沙拉",
+        description: "雞胸肉配生菜沙拉",
         servingSize: "1份",
         nutrients: {
           calories: 320,
@@ -111,9 +109,6 @@ export async function POST(request: Request) {
           fiber: 5,
           sugar: 6,
           sodium: 420,
-          cholesterol: 65,
-          saturatedFat: 3.5,
-          transFat: 0.1
         },
         dbsg: {
           digestibility: 85,
@@ -121,7 +116,7 @@ export async function POST(request: Request) {
           satiety: 75,
           glycemicIndex: 25
         },
-        healthTags: ["低醣", "高蛋白", "适合减重"],
+        healthTags: ["低醣", "高蛋白", "適合減重"],
         warnings: []
       };
     }
@@ -129,7 +124,7 @@ export async function POST(request: Request) {
     else if (lowerInput.includes('咖啡') || lowerInput.includes('coffee')) {
       mockData = {
         foodName: "黑咖啡",
-        description: "无糖无奶的黑咖啡",
+        description: "無糖無奶的黑咖啡",
         servingSize: "1杯（240毫升）",
         nutrients: {
           calories: 2,
@@ -139,9 +134,6 @@ export async function POST(request: Request) {
           fiber: 0,
           sugar: 0,
           sodium: 5,
-          cholesterol: 0,
-          saturatedFat: 0,
-          transFat: 0
         },
         dbsg: {
           digestibility: 95,
@@ -149,15 +141,40 @@ export async function POST(request: Request) {
           satiety: 30,
           glycemicIndex: 0
         },
-        healthTags: ["零热量", "提神醒脑", "富含抗氧化剂"],
+        healthTags: ["零熱量", "提神醒腦", "富含抗氧化劑"],
         warnings: ["咖啡因敏感者需注意"]
       };
     }
-    // 5. 默认数据（未匹配到上述关键词）
+    // 5. 豚骨拉麵
+    else if (lowerInput.includes('豚骨拉麵') || lowerInput.includes('拉麵') || lowerInput.includes('ramen')) {
+      mockData = {
+        foodName: "豚骨拉麵",
+        description: "日式豚骨湯拉麵，含叉燒、溏心蛋、筍乾等配料",
+        servingSize: "1碗（約600克）",
+        nutrients: {
+          calories: 450,
+          protein: 18,
+          carbs: 60,
+          fat: 15,
+          fiber: 3,
+          sugar: 5,
+          sodium: 1200,
+        },
+        dbsg: {
+          digestibility: 85,
+          bioavailability: 75,
+          satiety: 80,
+          glycemicIndex: 65
+        },
+        healthTags: ["高鈉", "均衡主食"],
+        warnings: ["鈉含量極高", "建議減少湯量攝取"]
+      };
+    }
+    // 6. 默認數據（未匹配到上述關鍵詞）
     else {
       mockData = {
         foodName: foodInput,
-        description: "营养分析数据",
+        description: "營養分析數據",
         servingSize: "1份",
         nutrients: {
           calories: 350,
@@ -167,9 +184,6 @@ export async function POST(request: Request) {
           fiber: 3,
           sugar: 5,
           sodium: 400,
-          cholesterol: 30,
-          saturatedFat: 4,
-          transFat: 0.2
         },
         dbsg: {
           digestibility: 80,
@@ -177,39 +191,56 @@ export async function POST(request: Request) {
           satiety: 70,
           glycemicIndex: 60
         },
-        healthTags: ["均衡营养"],
+        healthTags: ["均衡營養"],
         warnings: []
       };
     }
     
-    // 模拟AI处理延迟（500毫秒）
+    // 使用 Zod 驗證模擬數據的結構
+    const validatedAnalysis = NutritionAnalysisSchema.parse(mockData);
+    
+    // 模擬AI處理延遲（500毫秒）
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // 返回模拟数据
+    // 返回模擬數據
     return NextResponse.json({ 
       status: 'success',
-      message: '营养分析完成（模拟数据）',
+      message: '營養分析完成（模擬數據）',
       data: {
         foodInput,
-        analysis: mockData,
+        analysis: validatedAnalysis,
         metadata: {
           provider: 'mock-simulator',
           model: 'nutrition-db-v1',
           latency: '500ms',
-          tokens: 0
+          tokens: 0,
+          validated: true,
+          timestamp: new Date().toISOString()
         }
       }
     });
-    // =========== 结束：模拟数据方案 ===========
+    // =========== 結束：模擬數據方案 ===========
     
   } catch (error) {
-    // 处理请求体解析等错误
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error('❌ API 请求解析错误:', errorMessage);
+    // 處理不同類型的錯誤
+    console.error('❌ API 錯誤:', error);
     
+    if (error instanceof z.ZodError) {
+      // Zod 驗證錯誤
+      return NextResponse.json(
+        { 
+          error: '數據格式驗證失敗',
+          details: error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`)
+        },
+        { status: 400 }
+      );
+    }
+    
+    // 其他錯誤（如請求體解析錯誤）
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
       { 
-        error: '无法处理请求',
+        error: '無法處理請求',
         details: errorMessage
       },
       { status: 400 }
