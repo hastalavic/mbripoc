@@ -8,8 +8,8 @@ export class LLMOrchestrator {
   private providers: Map<string, LLMProvider> = new Map();
   private defaultProvider: string = LLM_PROVIDERS.DEEPSEEK;
   private fallbackOrder: string[] = [
+    LLM_PROVIDERS.GEMINI,  // 先試 Gemini（免費）
     LLM_PROVIDERS.DEEPSEEK,
-    LLM_PROVIDERS.GEMINI,
     LLM_PROVIDERS.OPENAI,
   ];
 
