@@ -1,4 +1,6 @@
+// app/_ai/types/nutrition.schema.ts
 import { z } from 'zod';
+import { zodToJsonSchema } from 'zod-to-json-schema'; // 💡 必須導入！
 
 // 1. 定義 Nutrients Schema
 const NutrientsSchema = z.object({
@@ -37,6 +39,14 @@ export const NutritionAnalysisSchema = z.object({
 // 4. 自動推導 TypeScript 型別
 export type NutritionAnalysis = z.infer<typeof NutritionAnalysisSchema>;
 
-// 5. 導出 JSON Schema 供 LLM API 使用 (如果需要)
-// import { zodToJsonSchema } from 'zod-to-json-schema';
-// export const NutritionAnalysisJsonSchema = zodToJsonSchema(NutritionAnalysisSchema, "NutritionAnalysisSchema");
+// 5. 🎯 修正：導出 JSON Schema 供 LLM API 使用
+// 這樣做可以確保 Zod 驗證和 API Schema 保持同步！
+export const NutritionAnalysisJsonSchema = zodToJsonSchema(
+    NutritionAnalysisSchema, 
+    "NutritionAnalysisSchema"
+);
+
+// 註釋說明
+// 這裡的 Zod Schema 定義了數據的結構 (用於本地驗證和 TS 型別)。
+// 下方的 NutritionAnalysisJsonSchema 則是將這個結構轉換成 LLM API (如 Gemini)
+// 能讀懂的標準 JSON Schema 物件，用來指示 AI 必須輸出何種格式。
