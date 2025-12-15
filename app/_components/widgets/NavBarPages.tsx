@@ -13,6 +13,7 @@ export default function Navbar() {
     { href: "/intake_entry", label: "攝取預覽" },
     { href: "/AllElementsPage", label: "元素導覽" },
     { href: "/IntakesPage", label: "攝取物列表" },
+    { href: "/bvt_001", label: "BVT" },
 
   ];
 

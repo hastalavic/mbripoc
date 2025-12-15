@@ -108,7 +108,7 @@ function pickRIFromRow(
 
 // --- 主引擎：輸出全部營養素的 RI ---
 // 不含巨量營養素；巨量營養素由 MacronutrientRequirementEngine 計算。
-export function computeBaseRequirement(
+export function computeMicroNutriRequirement(
   profile: ProfileFormState
 ): Record<NutrientKey, BaseRequirementOutput> {
   const age = getNumericAge(profile.age);

@@ -1,5 +1,3 @@
-
-
 // TotalRequirementEngine.ts
 // ---------------------------------------------------------
 // 整合巨量營養素 + 微量營養素（維生素與礦物質）
@@ -7,8 +5,10 @@
 // ---------------------------------------------------------
 
 import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
-import { computeBaseRequirement } from "../Core/MicroNutriNeedEngine.compute";
+import { computeMicroNutriRequirement } from "../Core/MicroNutriNeedEngine.compute";
 import { computeMacronutrientRequirements } from "../Core/MacroNutriNeedEngine.compute";
+import { computeFatacidRequirement } from "../Core/FatacidNeedEngine.compute"; // ✅ 新增的導入
+import type { FatacidRequirement } from "../Core/FatacidNeedEngine.compute";
 
 export interface TotalRequirementOutput {
   macros: {
@@ -17,6 +17,8 @@ export interface TotalRequirementOutput {
     carbs: number;
     hydration: number;
   };
+
+  fatAcids: FatacidRequirement;
 
   micros: Record<
     string,
@@ -68,15 +70,20 @@ export function computeTotalRequirement(
   profile: ProfileFormState
 ): TotalRequirementOutput {
   // ① 微量營養素（維生素 + 礦物質）
-  const micros = computeBaseRequirement(profile);
+  const micros = computeMicroNutriRequirement(profile);
 
   // ② 巨量營養素（蛋白質 / 脂肪 / 碳水 / 水分）
   const macroInputs = deriveMacroInputs(profile);
   const macros = computeMacronutrientRequirements(macroInputs);
 
+  // ③ 脂肪酸需求細分（Omega‑3 / 6 / 9）
+  // 這裡會依照 macros.fat 取得各類 Omega 需求
+  const fatAcids = computeFatacidRequirement(profile, macros.fat);
+
   // 組合輸出
   return {
     macros,
+    fatAcids,
     micros,
   };
 }
