@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@/app/_components/ui/Button";
+import Button from "@/app/components/ui/Button";
 import { v4 as uuid } from "uuid";
 import { computeInitialInternalState } from "@/app/_engine/computes/tasks/StartPointInternalState.compute";
 import useStartPointHistory from "@/app/(FeaturePages)/PSP/hooks/useStartPointHistory.hook";

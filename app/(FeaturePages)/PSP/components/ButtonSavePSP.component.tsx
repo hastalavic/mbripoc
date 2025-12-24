@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@/app/_components/ui/Button";
+import Button from "@/app/components/ui/Button";
 import { addPhysioLog } from "@/app/_repository/PSPRecorder.db";
 import { v4 as uuid } from "uuid";
 

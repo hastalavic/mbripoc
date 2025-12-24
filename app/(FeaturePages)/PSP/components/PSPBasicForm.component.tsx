@@ -2,9 +2,9 @@
 
 import React from "react";
 // 匯入所有 Fields (請確認路徑是否正確，這裡使用您 Page 中假設的路徑)
-import InputField from "@/app/_components/ui/Fields/InputField";
-import NumberField from "@/app/_components/ui/Fields/NumberField";
-import SelectField from "@/app/_components/ui/Fields/SelectField";
+import InputField from "@/app/components/ui/Fields/InputField";
+import NumberField from "@/app/components/ui/Fields/NumberField";
+import SelectField from "@/app/components/ui/Fields/SelectField";
 
 import { ProfileFormState, Sex } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
 

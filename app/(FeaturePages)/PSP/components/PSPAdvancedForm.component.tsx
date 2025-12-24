@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import SelectField from "@/app/_components/ui/Fields/SelectField";
+import SelectField from "@/app/components/ui/Fields/SelectField";
 import { ProfileFormState } from "../utils/PSPForm.types";
 
 interface PSPFormProps {

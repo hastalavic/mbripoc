@@ -4,15 +4,15 @@ import {
   LLMProvider,
   LLMRequest,
   LLMResponse,
-  LLMProviderConfig
+  LLMProviderConfig,
 } from '../types/llm.types';
 
-import { NutritionAnalysisSchema, type NutritionAnalysis } from '../types/nutrition.schema';
-import { NutritionAnalysisJsonSchema } from '../types/nutrition.schema'; 
+import {
+  IntakeAnalysisSchema,
+  type IntakeAnalysis,
+} from '../types/IntakeAnalysisSchema.type';
+
 import { z } from 'zod';
-
-interface CustomLLMResponse extends LLMResponse {}
-
 
 export class GeminiProvider implements LLMProvider {
   name = 'gemini';
@@ -21,151 +21,249 @@ export class GeminiProvider implements LLMProvider {
   constructor(config: LLMProviderConfig) {
     this.config = config;
     if (!this.validateConfig(config)) {
-      throw new Error("GeminiProvider configuration is incomplete.");
+      throw new Error('GeminiProvider configuration is incomplete.');
     }
   }
 
   validateConfig(config: LLMProviderConfig): boolean {
     if (!config.model) {
-      // 使用最新的穩定模型
-      config.model = 'gemini-2.5-flash'; 
+      config.model = 'gemini-2.5-flash';
     }
-    return !!config.apiKey && !!config.model;
+    return Boolean(config.apiKey && config.model);
   }
 
-  async call(request: LLMRequest): Promise<CustomLLMResponse> {
+  // --------------------------------------------------
+  // Low-level Gemini call
+  // --------------------------------------------------
+  async call(request: LLMRequest): Promise<LLMResponse> {
     const startTime = Date.now();
-    
-    try {
-      // 使用 /v1
-      const baseURL = this.config.baseURL || 'https://generativelanguage.googleapis.com/v1'; 
-      const model = this.config.model;
-      const temperature = request.temperature ?? this.config.temperature ?? 0.1;
-      const maxOutputTokens = request.maxTokens ?? this.config.maxTokens ?? 2048;
 
-      // --- 構建 generationConfig (包含所有配置) ---
-      const generationConfig: any = {
-          // 1. 生成參數
-          temperature: temperature,
-          maxOutputTokens: maxOutputTokens,
-          
-          // ✨ 核心修正：將 JSON 輸出配置放回 generationConfig 內部
-          ...(request.responseMimeType === 'application/json' && {
-              responseMimeType: 'application/json',
-          }),
-          ...(request.responseSchema && {
-              responseSchema: request.responseSchema, 
-          }),
-      };
-      
-      // 構建請求體 Body
-      const body: any = {
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: request.prompt }] // 用戶提示 (已包含指令)
-          }
-        ],
-        // ✨ 將 generationConfig 放在頂層 (這是 v1/v1beta 最標準的結構)
-        generationConfig: generationConfig,
-        // 沒有 config 和 systemInstruction
-      };
-      
-      const response = await fetch(
-        `${baseURL}/models/${model}:generateContent?key=${this.config.apiKey}`,
+    const baseURL =
+      this.config.baseURL ??
+      'https://generativelanguage.googleapis.com/v1';
+    const model = this.config.model;
+
+    const body = {
+      contents: [
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(body),
-        }
+          role: 'user',
+          parts: [{ text: request.prompt }],
+        },
+      ],
+      generationConfig: {
+        temperature:
+          request.temperature ?? this.config.temperature ?? 0.1,
+        maxOutputTokens:
+          request.maxTokens ?? this.config.maxTokens ?? 4096,
+      },
+    };
+
+    const response = await fetch(
+      `${baseURL}/models/${model}:generateContent?key=${this.config.apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      }
+    );
+
+    const data = await response.json();
+    const latency = Date.now() - startTime;
+
+    if (!response.ok) {
+      throw new Error(
+        `Gemini API error ${response.status}: ${
+          data?.error?.message ?? response.statusText
+        }`
       );
-
-      const data = await response.json();
-
-      // 增強錯誤處理
-      if (!response.ok) {
-         const apiErrorMessage = data.error?.message || response.statusText;
-         console.error('Sent Body:', JSON.stringify(body, null, 2));
-         throw new Error(`Gemini API error (${response.status}): ${apiErrorMessage}`);
-      }
-      
-      const latency = Date.now() - startTime;
-      
-      let content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-      
-      // 處理可能存在的 JSON 輸出被包裝的問題
-      if (!content && data.candidates?.[0]?.content?.parts?.[0]?.data?.text) {
-          content = data.candidates[0].content.parts[0].data.text;
-      }
-      
-      // 返回 LLMResponse
-      return {
-        content,
-        model: model,
-        latency,
-        provider: this.name,
-      };
-    } catch (error) {
-      // 確保將底層錯誤訊息傳播出去
-      throw new Error(`Gemini call failed: ${error instanceof Error ? error.message : String(error)}`);
     }
+
+    let content = '';
+    if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      content = data.candidates[0].content.parts[0].text;
+    }
+
+    return {
+      content,
+      model,
+      latency,
+      provider: this.name,
+    };
   }
 
-  /**
-   * 專為營養分析設計的便捷方法：利用原生 JSON 輸出功能
-   */
-  async analyzeFood(foodName: string): Promise<NutritionAnalysis> {
-    // 簡化系統提示：主要指示 AI 角色和數據返回格式
-    const rawSystemPrompt = `
-      你是一個專業的營養分析師。
-      重要規則：1. 只返回符合指定格式的 JSON，不要有任何其他文字、解釋或 markdown 格式。2. 數字字段必須是數字。3. 如果信息不可用，可以省略可選字段。4. 確保所有必填字段都存在。
-      請分析「${foodName}」的營養成分並返回符合要求的 JSON 數據。
-    `;
+  // --------------------------------------------------
+  // Intake Analysis (BVT / flat schema)
+  // --------------------------------------------------
+async analyzeFood(inputText: string): Promise<IntakeAnalysis> {    /**
+     * ⚠️ BVT 核心約束
+     * - flat JSON ONLY
+     * - 僅允許 schema 定義的 keys
+     * - 不確定數值 → 0
+     * - 被歸零者 → 列入 _unknown
+     */
+    const prompt = `
+YOUR ROLE
+	You are a professional nutrition and dietary exposure analysis engine.
+	
+TASK
+	Analyze the designated intake and output nutritional composition and dietary exposure
+	based on food science databases, peer-reviewed food chemistry literature, and logical estimation.
 
-    // 核心修正：將所有空白字符替換為單一空格，作為指令前綴
-    const fullPrompt = rawSystemPrompt.replace(/\s+/g, ' ').trim();
+GLOBAL RULES
+	Output JSON ONLY. Must start with { and end with }.
+	No markdown, no comments, no explanations, no extra text.
+	If any required field is missing, the output is invalid.
+	Values in // are unit references only. DO NOT include these characters or unit strings in the output keys or values.
 
-    // 🎯 優化：直接使用導入的 JSON Schema 物件
-    const responseSchema = NutritionAnalysisJsonSchema;
+BASIC INFORMATION
+Rules
+	serving_weight: estimate user-described amount only.
+		MUST NOT scale any other values.
+		MUST NOT affect any per-100g / per-100ml values.
+		MUST NOT be inferred from intake_components or intake_count.  
+		If weight cannot be estimated, set serving_weight = 100.
+	intake_type: If = "beverage", serving_weight unit = ml, otherwise g.
+		multiple components (bento, ramen set, combo) → "composite"
+		otherwise → "food"
+	intake_state: default = "normal"
+	intake_components:
+    extracted semantic components only.
+    NOT used for nutrient or MBF calculation.
+    Max length = 5. Order does not imply proportion.
+	intake_count and original_unit are for semantic capture only.
+		They MUST NOT be used to infer or adjust serving_weight or nutrients.
+	original_unit:
+    Output ONLY if explicitly stated by user. Otherwise output empty string "".
+    	
+Keys
+	intake_name : string // food name
+	intake_brand : string // brand or vendor, empty if unknown
+	intake_components: array<string> // semantic components only, max length = 5.
+	intake_count : number // numeric quantity
+	original_unit : string // extracted unit label
+	serving_weight : number // Sum of all items' weights for ONE meal(g).
+	intake_type : enum // ["food","beverage","supplement","ingredient","composite"]
+	intake_state : enum // ["normal","undercooked","overcooked","charred"]
+	
+ELEMENTS
+Rules
+	Output must be a single-level JSON object. No nesting. No arrays except _unknown.
+	All numeric values represent exposure per 100g (solid) or 100ml (liquid).
+	All fields defined below MUST be output, except _unknown (omit if empty).
+	All nutrient and MBF fields MUST be numbers. Use 0 if unknown.
+	Inherent absence → output 0, do NOT add to _unknown
+	Cannot reasonably estimate → output 0 AND add field name to _unknown
+	If no unknown fields exist, omit _unknown entirely
+	
+Keys
+MACRONUTRIENTS (per 100g / 100ml)
+	NU_CARB : // Carbohydrates (g)
+	NU_FBR : // Dietary Fiber (g)
+	NU_FAT : // Total Fat (g)
+	NU_PRO : // Protein (g)
+	NU_WATER : // Water Content (g)
+	
+VITAMINS (per 100g / 100ml)
+	VIT_A : // Vitamin A, (mcg) RAE
+	VIT_B1 : // Vitamin B1 (Thiamine) (mg)
+	VIT_B2 : // Vitamin B2 (Riboflavin) (mg)
+	VIT_B6 : // Vitamin B6 (Pyridoxine) (mg)
+	VIT_C : // Vitamin C (Ascorbic Acid) (mg)
+	VIT_E : // Vitamin E  (mg)α-TE
+	VIT_LK_CHOL : // Choline (mg)
+
+FATTY ACIDS (per 100g / 100ml)
+FA_OM3 : // Total Omega-3 Fatty Acids (mg)
+FA_OM6 : // Total Omega-6 Fatty Acids (mg)
+
+MINERALS (per 100g / 100ml)
+MIN_K : // Potassium (mg)
+MIN_SE : // Selenium (mcg)
+MIN_MG : // Magnesium (mg)
+MIN_ZN : // Zinc (mg)
+
+AMINO ACIDS & PRECURSORS (per 100g / 100ml)
+AA_GLY : // Glycine (mg)
+AA_D_NAC : // N-Acetyl-Cysteine (NAC) (mg)
+
+PHYTOCHEMICALS (per 100g / 100ml)
+PHY_CUR : // Curcumin (mg)
+
+METABOLIC BURDEN FACTORS (per 100g / 100ml)
+MBF_AGEs : // Advanced Glycation End-products (kU)
+MBF_ACR  : // Acrylamide (mcg)
+MBF_PAHs : // Polycyclic Aromatic Hydrocarbons (ng)
+MBF_FUR  : // Furan (mcg)
+MBF_PUR  : // Purines (mg)
+
+OXIDATION FACTORS (per 100g / 100ml)
+Rules
+Enum fields MUST use one of the listed values only. No new values allowed.
+
+fac_mbf_oxl_fc : enum
+["anml_L","anml_S","fish","seafood","proc_NP","proc_P","unknown"]
+// anml_L  = pork, beef, lamb
+// anml_S  = poultry, small animals
+// proc_NP = non-pre-fried processed foods
+// proc_P  = pre-fried processed foods
+fac_mbf_oxl_ts : enum
+["raw","steam","stew","stir","roast","fry","unknown"]
+
+UNKNOWN FIELD LIST
+_unknown : array<string>
+
+USER INPUT
+{{INPUT_TEXT}}
+
+Return JSON now.
+`
+
+  .replace('{{INPUT_TEXT}}', inputText)
+  .trim();
 
     const request: LLMRequest = {
-      prompt: fullPrompt, // 使用合併的提示
-      temperature: 0.1, 
-      maxTokens: 2048,
-      responseMimeType: 'application/json',
-      responseSchema: responseSchema // 傳遞 JSON Schema
+      prompt,
+      temperature: 0.1,
+      maxTokens: 4096,
     };
-    
+
     const response = await this.call(request);
-    
+
     try {
       let jsonText = response.content.trim();
-      
-      // 安全檢查：移除可能的 markdown 代碼塊
-      jsonText = jsonText.replace(/^```json\s*/i, '').replace(/\s*```$/, '');
-      jsonText = jsonText.trim();
-      
-      // 解析 JSON
-      const rawData = JSON.parse(jsonText);
-      
-      // 雙重檢查：使用 Zod Schema 驗證數據結構
-      const validatedData = NutritionAnalysisSchema.parse(rawData);
-      
-      // 🎉 如果到這一步，表示 Gemini 請求、結構化輸出和 Zod 驗證全部成功！
-      return validatedData;
-      
-    } catch (error) {
-      console.error('❌ 解析或驗證 Gemini 回應失敗:');
-      console.error('原始回應:', response.content);
-      console.error('錯誤:', error);
-      
-      if (error instanceof z.ZodError) {
-        throw new Error(`AI 返回的數據格式無效 (Zod 錯誤): ${error.issues.map(e => e.message).join(', ')}`);
+
+      // 清理 Gemini 常見 markdown 包裹
+      jsonText = jsonText
+        .replace(/^```json/i, '')
+        .replace(/^```/i, '')
+        .replace(/```$/i, '')
+        .trim();
+
+      const raw = JSON.parse(jsonText);
+
+      // 🔒 唯一真理：Schema 驗證
+      const validated = IntakeAnalysisSchema.parse(raw);
+
+      console.log('✅ IntakeAnalysis OK:', validated.intake_name);
+
+      return validated;
+    } catch (err) {
+      console.error('❌ Gemini analyzeFood failed');
+      console.error('RAW RESPONSE:', response.content);
+
+      if (err instanceof z.ZodError) {
+        throw new Error(
+          `Schema validation failed: ${err.issues
+            .map((i) => i.path.join('.'))
+            .join(', ')}`
+        );
       }
-      
-      throw new Error(`無法解析 AI 回應為 JSON: ${error instanceof Error ? error.message : String(error)}`);
+
+      if (err instanceof SyntaxError) {
+        throw new Error('Gemini returned invalid JSON');
+      }
+
+      throw err;
     }
   }
 }

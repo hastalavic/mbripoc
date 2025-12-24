@@ -2,7 +2,7 @@ import PSPForm from "@/app/(FeaturePages)/PSP/components/PSPAdvancedForm.compone
 import ProfileSettingsForm from "@/app/(FeaturePages)/PSP/components/PSPBasicForm.component";
 import PSPSummaryAndDebug from "@/app/(FeaturePages)/PSP/components/PSPDisplayBlock.component";
 import ButtonSavePSP from "@/app/(FeaturePages)/PSP/components/ButtonSavePSP.component";
-import MBRIDebugPanel from "@/app/_components/Debug/MBRIDebugPanel";
+import MBRIDebugPanel from "@/app/components/Debug/MBRIDebugPanel";
 
 import usePSPForm from "@/app/(FeaturePages)/PSP/hooks/usePSPForm.hook";
 import usePSPLocalStorage from "@/app/(FeaturePages)/PSP/hooks/usePSPLocalStorage.hook";
@@ -10,9 +10,9 @@ import usePSPLocalStorage from "@/app/(FeaturePages)/PSP/hooks/usePSPLocalStorag
 import { computeBMI } from "@/app/(FeaturePages)/PSP/utils/computeBMI";
 import { defaultProfile, ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
 
-import PageTitleBlock from "@/app/_components/layout/PageTitleBlock";
-import DateTimePicker from "@/app/_components/ui/DateTimePicker/DateTimePicker";
-import Spacing from "@/app/_components/ui/Spacing.component";
+import PageTitleBlock from "@/app/components/layout/PageTitleBlock";
+import DateTimePicker from "@/app/components/ui/DateTimePicker/DateTimePicker";
+import Spacing from "@/app/components/ui/Spacing.component";
 
 import { LogPhysioDynamic, resetPhysioLog } from "@/app/_repository/PSPRecorder.db";
 
