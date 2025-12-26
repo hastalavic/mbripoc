@@ -1,6 +1,6 @@
 // FatacidNeedEngine.compute.ts
 // ---------------------------------------------------------
-// Omega-3 / Omega-6 / Omega-9 三桶制需求量計算引擎（POC版）
+// Omega-3 / Omega-6 / Omega-9 三桶制需求量計算引擎（BVT版）
 // 不拆 ALA / EPA / DHA，只看總桶
 // ---------------------------------------------------------
 
@@ -66,7 +66,7 @@ export function computeFatacidRequirement(
   return {
     omega3: {
       RI: Math.round(omega3_mg),
-      UL: 3000, // POC 寬鬆上限
+      UL: 3000, // BVT 寬鬆上限
       unit: "mg",
       ratioOfTotalFat: omega3Ratio * unsatRatio,
     },

@@ -30,7 +30,7 @@ export const HomeostasisEngine = {
     return BMR * activityFactor * hours;
   },
 
-  /* -------------------- 鈉平衡（POC 版本） -------------------- */
+  /* -------------------- 鈉平衡（BVT 版本） -------------------- */
   applySodiumIntake(state: HomeostasisState, mg: number) {
     const delta = mg / 500;
     return {
@@ -47,7 +47,7 @@ export const HomeostasisEngine = {
     };
   },
 
-  /* -------------------- 血糖（POC 版本） -------------------- */
+  /* -------------------- 血糖（BVT 版本） -------------------- */
   applyCarbs(state: HomeostasisState, grams: number) {
     const spike = grams * 1.2;
     return { ...state, glucose: state.glucose + spike };

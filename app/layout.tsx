@@ -8,7 +8,7 @@ import Footer from "./components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "MBRI Compute Demo",
-  description: "POC Environment",
+  description: "BVT Environment",
 };
 
 export default function RootLayout({

@@ -1,3 +1,11 @@
+# MBRI-BVT
+
+MBRI-BVT（Behavior Validation Testbed）是一個用於驗證  
+「飲食決策前是否會參考代謝負擔與風險資訊」的行為驗證工具。
+
+本專案以 Next.js 為前端框架，  
+重點不在技術展示，而在於驗證使用者行為是否改變。
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
