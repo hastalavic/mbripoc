@@ -16,7 +16,7 @@ export interface ElementDefinition {
  * 1. Macronutrients
  * ========================= */
 export const MACRO_ELEMENTS = {
-  NU_CAL: {
+  NU_KCAL: {
     DisplayName: "熱量",
     Standard_Unit: "kcal",
     isAIRequired: true,

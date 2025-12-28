@@ -117,23 +117,41 @@ GLOBAL RULES
 
 BASIC INFORMATION
 Rules
-	serving_weight: estimate user-described amount only.
+	serving_weight: 
+    Estimate user-described amount only.
 		MUST NOT scale any other values.
 		MUST NOT affect any per-100g / per-100ml values.
 		MUST NOT be inferred from intake_components or intake_count.  
 		If weight cannot be estimated, set serving_weight = 100.
-	intake_type: If = "beverage", serving_weight unit = ml, otherwise g.
+
+	intake_type:
+    If = "beverage", serving_weight unit = ml, otherwise g.
 		multiple components (bento, ramen set, combo) → "composite"
 		otherwise → "food"
-	intake_state: default = "normal"
-	intake_components:
-    extracted semantic components only.
+
+	intake_state:
+    default = "normal"
+	
+  intake_components:
+    Extracted semantic food items ONLY.
+    MUST NOT be used to infer cooking method, oxidation level, or exposure factors.
+    MUST represent edible components or ingredients.
+    MUST NOT include cooking methods, processing states, or - preparation styles (e.g. grilled, fried, roasted, boiled, raw).
+    Cooking-related semantics MUST be expressed ONLY via fac_mbf_oxl_ts.
     NOT used for nutrient or MBF calculation.
     Max length = 5. Order does not imply proportion.
-	intake_count and original_unit are for semantic capture only.
+	
+    intake_count and original_unit are for semantic capture only.
 		They MUST NOT be used to infer or adjust serving_weight or nutrients.
+
 	original_unit:
-    Output ONLY if explicitly stated by user. Otherwise output empty string "".
+    If both a weight unit and a discrete count unit are present,the discrete count unit takes priority for original_unit,but serving_weight MUST still equal the stated weight value.
+    If user input contains a numeric value followed by a weight unit (g, gram, ml), and no discrete unit (e.g. 個, 份, 塊, 隻, 片, 條) is explicitly stated:
+      - intake_count MUST be 1
+      - original_unit MUST be an inferred serving unit such as "份"
+      - serving_weight MUST equal the stated weight value
+    Output ONLY if a discrete count unit is explicitly stated by user (e.g. 個, 份, 塊, 隻, 片).
+    Weight units (g, ml) MUST NOT be used as original_unit.
     	
 Keys
 	intake_name : string // food name
@@ -157,6 +175,7 @@ Rules
 	
 Keys
 MACRONUTRIENTS (per 100g / 100ml)
+  NU_KCAL : // Energy (kcal)
 	NU_CARB : // Carbohydrates (g)
 	NU_FBR : // Dietary Fiber (g)
 	NU_FAT : // Total Fat (g)

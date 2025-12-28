@@ -2,6 +2,14 @@
 
 import React, { useMemo, useState } from "react";
 
+// 🔹 計算核心（page 只負責「呼叫」）
+import { scaleActualIntake } from "@/app/_engine/computes/tasks/ActualIntakeScaler.compute";
+
+// 🔹 顯示計算結果的 widget
+import ActualIntakeResultWidget from "@/app/components/widgets/ActualIntakeResult.widget";
+
+import { buildMBFResults } from "@/app/_engine/computes/MBF/results/MBFresults";
+
 export default function Bvt001Page() {
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState<any | null>(null);
@@ -12,6 +20,9 @@ export default function Bvt001Page() {
   const maxChars = 500;
   const canSubmit = trimmed.length > 0;
 
+  // =========================
+  // 送出分析請求
+  // =========================
   async function handleSubmit() {
     if (!canSubmit || loading) return;
 
@@ -41,14 +52,35 @@ export default function Bvt001Page() {
     }
   }
 
-  /**
-   * 解析 API 回傳的 analysis（flat 結構）
-   */
+  // =========================
+  // 取出 AI 分析結果（語意 + per100）
+  // =========================
   const analysis = useMemo(() => {
     if (!submitted) return null;
     if (submitted.status !== "success") return null;
     return submitted.data?.analysis ?? null;
   }, [submitted]);
+
+  // =========================
+  // 觸發計算核心 → 實際攝取量
+  // =========================
+  const actualIntake = useMemo(() => {
+    if (!analysis) return null;
+
+    return scaleActualIntake(analysis, {
+      actualWeight: analysis.serving_weight,
+    });
+  }, [analysis]);
+
+  // =========================
+  // 觸發 MBF 結果組裝
+  // =========================
+  const mbfResults = useMemo(() => {
+    if (!analysis || !actualIntake) return null;
+
+    return buildMBFResults(analysis, actualIntake);
+  }, [analysis, actualIntake]);
+
 
   return (
     <main
@@ -80,7 +112,9 @@ export default function Bvt001Page() {
         >
           <textarea
             value={text}
-            onChange={(e) => e.target.value.length <= maxChars && setText(e.target.value)}
+            onChange={(e) =>
+              e.target.value.length <= maxChars && setText(e.target.value)
+            }
             placeholder="例如：雞腿便當一個、蘋果一顆、黑咖啡一杯"
             rows={5}
             style={{
@@ -127,74 +161,35 @@ export default function Bvt001Page() {
           )}
 
           {/* ===== Result ===== */}
-          {analysis && (
-            <div
-              style={{
-                marginTop: 24,
-                padding: 20,
-                borderRadius: 12,
-                background: "rgba(0,128,0,0.05)",
-                border: "1px solid rgba(0,128,0,0.2)",
-              }}
-            >
-              <h3 style={{ marginTop: 0 }}>分析結果</h3>
-
-              {/* 基本資訊 */}
-              <div style={{ marginBottom: 12 }}>
+          {analysis && actualIntake && mbfResults && (
+            <div style={{ marginTop: 24 }}>
+              {/* --- 基本資訊（語意） --- */}
+              <div
+                style={{
+                  padding: 16,
+                  borderRadius: 12,
+                  border: "1px solid rgba(0,0,0,0.12)",
+                  marginBottom: 16,
+                }}
+              >
+                <h3 style={{ marginTop: 0 }}>分析對象</h3>
                 <div><b>名稱：</b>{analysis.intake_name}</div>
                 <div><b>重量：</b>{analysis.serving_weight} g / ml</div>
                 <div><b>類型：</b>{analysis.intake_type}</div>
                 <div><b>狀態：</b>{analysis.intake_state}</div>
               </div>
 
-              {/* 巨量營養素 */}
-              <h4>巨量營養素（per 100）</h4>
-              <ul>
-                <li>碳水：{analysis.NU_CARB} g</li>
-                <li>蛋白質：{analysis.NU_PRO} g</li>
-                <li>脂肪：{analysis.NU_FAT} g</li>
-                <li>纖維：{analysis.NU_FBR} g</li>
-                <li>水分：{analysis.NU_WATER} g</li>
-              </ul>
+              {/* --- 實際攝取量 + MBF --- */}
+              <ActualIntakeResultWidget
+                analysis={analysis}
+                actualIntake={actualIntake}
+                mbf={mbfResults}
+              />
 
-              {/* 維生素 */}
-              <h4>維生素</h4>
-              <ul>
-                <li>Vit A：{analysis.VIT_A} mcg</li>
-                <li>Vit B1：{analysis.VIT_B1} mg</li>
-                <li>Vit B2：{analysis.VIT_B2} mg</li>
-                <li>Vit B6：{analysis.VIT_B6} mg</li>
-                <li>Vit C：{analysis.VIT_C} mg</li>
-                <li>Vit E：{analysis.VIT_E} mg</li>
-                <li>Choline：{analysis.VIT_LK_CHOL} mg</li>
-              </ul>
-
-              {/* MBF */}
-              <h4>代謝負擔因子（MBF）</h4>
-              <ul>
-                <li>AGEs：{analysis.MBF_AGEs}</li>
-                <li>Acrylamide：{analysis.MBF_ACR}</li>
-                <li>PAHs：{analysis.MBF_PAHs}</li>
-                <li>Furan：{analysis.MBF_FUR}</li>
-                <li>Purines：{analysis.MBF_PUR}</li>
-              </ul>
-
-              {/* Unknown */}
-              {analysis._unknown?.length > 0 && (
-                <>
-                  <h4>無法估算欄位</h4>
-                  <ul>
-                    {analysis._unknown.map((k: string) => (
-                      <li key={k}>{k}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-
-              {/* Raw JSON */}
+              {/* --- Debug：原始 AI Analysis --- */}
               <details style={{ marginTop: 16 }}>
-                <summary>查看原始 JSON</summary>
-                <pre style={{ fontSize: 12 }}>
+                <summary>查看原始 JSON（Debug）</summary>
+                <pre style={{ fontSize: 12, opacity: 0.7 }}>
                   {JSON.stringify(analysis, null, 2)}
                 </pre>
               </details>
