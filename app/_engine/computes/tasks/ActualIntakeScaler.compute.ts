@@ -9,7 +9,7 @@
 * 純計算（deterministic, stateless）
 -------------------------------------------------- */
 
-import { ElementKnowledgeBase } from "@/app/_repository/data/ElementBase.constants";
+import { ElementKnowledgeBase } from "@/app/_repository/ElementBase.constants";
 
 // 元素 key 來源定義
 type ElementKey = keyof typeof ElementKnowledgeBase;

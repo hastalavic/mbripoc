@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
-import { computeTotalRequirement } from "@/app/_engine/computes/Aggregators/RequirementAggregator.compute";
+import { computeTotalRequirement } from "@/app/_engine/computes/personalize/RequirementAggregator.compute";
 
 interface PSPSummaryAndDebugProps {
   form: ProfileFormState;

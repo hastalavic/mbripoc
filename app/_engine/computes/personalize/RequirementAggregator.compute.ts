@@ -1,4 +1,5 @@
-// TotalRequirementEngine.ts
+// app/_engine/computes/personalize/RequirementAggregator.compute.ts
+
 // ---------------------------------------------------------
 // 整合巨量營養素 + 微量營養素（維生素與礦物質）
 // 產生「一日完整營養需求矩陣 RI」。

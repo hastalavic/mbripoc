@@ -6,6 +6,9 @@ import React from "react";
 import type { IntakeAnalysis } from "@/app/_ai/types/IntakeAnalysisSchema.type";
 import type { NutrientVector } from "@/app/_engine/computes/tasks/ActualIntakeScaler.compute";
 import type { MBFResults } from "@/app/_engine/computes/MBF/results/MBFresults";
+import MBF_BASE from "@/app/_repository/Elements/MBFBase.constants";
+import type { MBFKey } from "@/app/_repository/Elements/MBFBase.constants";
+
 
 type Props = {
   analysis: IntakeAnalysis;
@@ -25,18 +28,6 @@ function fmt(value?: number, maxDigits = 2) {
   const rounded = Number(value.toFixed(maxDigits));
   return Number.isInteger(rounded) ? String(rounded) : String(rounded);
 }
-
-/**
- * MBF 中文標籤
- */
-const MBF_LABEL: Record<string, string> = {
-  MBF_OXL: "氧化脂質（OXL）",
-  MBF_AGEs: "糖化終產物（AGEs）",
-  MBF_ACR: "丙烯醯胺（Acrylamide）",
-  MBF_PAHs: "多環芳香烴（PAHs）",
-  MBF_FUR: "呋喃（Furan）",
-  MBF_PUR: "普林（Purines）",
-};
 
 /**
  * 區塊樣式
@@ -156,12 +147,25 @@ export default function ActualIntakeResultWidget({
       <div style={blockStyle}>
         <h4 style={titleStyle}>代謝負擔因子（MBF）</h4>
         <ul>
-          <li>{MBF_LABEL.MBF_OXL}：{fmt(mbf.oxl, 0)}</li>
-          <li>{MBF_LABEL.MBF_AGEs}：{fmt(actualIntake.MBF_AGEs, 0)}</li>
-          <li>{MBF_LABEL.MBF_ACR}：{fmt(actualIntake.MBF_ACR, 0)}</li>
-          <li>{MBF_LABEL.MBF_PAHs}：{fmt(actualIntake.MBF_PAHs, 0)}</li>
-          <li>{MBF_LABEL.MBF_FUR}：{fmt(actualIntake.MBF_FUR)}</li>
-          <li>{MBF_LABEL.MBF_PUR}：{fmt(actualIntake.MBF_PUR, 0)}</li>
+          {(Object.keys(MBF_BASE) as MBFKey[]).map((key) => {
+            const meta = MBF_BASE[key].element;
+
+            // OXL 是計算型，其餘為 passthrough
+            const value =
+              key === "MBF_OXL"
+                ? mbf.oxl
+                : (actualIntake as any)[key] ?? 0;
+
+            const label = meta.DisplayName_en
+              ? `${meta.DisplayName_zh}（${meta.DisplayName_en}）`
+              : meta.DisplayName_zh;
+
+            return (
+              <li key={key}>
+                {label}：{fmt(value, 0)} {meta.Standard_Unit}
+              </li>
+            );
+          })}
         </ul>
       </div>
 
