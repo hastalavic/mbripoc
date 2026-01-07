@@ -1,4 +1,4 @@
-import NavBarPages from "@/app/components/widgets/NavBarPages";
+import NavBarPages from "@/app/design/widgets/NavBarPages";
 
 export default function Header() {
   return (

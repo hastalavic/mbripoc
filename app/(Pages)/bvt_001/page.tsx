@@ -20,7 +20,7 @@ import {
 } from "@/app/_engine/registry/FD1.registry";
 
 // 🔹 Widget
-import ActualIntakeResultWidget from "@/app/components/widgets/ActualIntakeResult.widget";
+import ActualIntakeResultWidget from "@/app/design/widgets/ActualIntakeResult.widget";
 
 export default function Bvt001Page() {
   /* ==================================================

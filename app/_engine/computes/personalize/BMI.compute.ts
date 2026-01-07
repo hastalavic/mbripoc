@@ -1,4 +1,4 @@
-// app/(pages)/PSP/utils/computeBMI.ts
+// app/(Pages)/PSP/utils/computeBMI.ts
 /**
  * 計算 BMI 指數
  * @param heightCm 身高（cm）

@@ -6,7 +6,7 @@
 // 本引擎專注於生命週期常數（依年齡 / 性別 / 懷孕 / 哺乳），
 // 巨量營養素由 MacronutrientRequirementEngine 負責計算。
 
-import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 import {
   LifespanMicroNutriNeeds,
   AgeRangeRequirement,

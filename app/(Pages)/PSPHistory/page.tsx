@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { resetPhysioLog } from "@/app/_repository/PSPRecorder.db";
-import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 
 export default function PSPHistoryPage() {
   const [logs, setLogs] = useState<any[]>([]);

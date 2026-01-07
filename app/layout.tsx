@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 // 匯入 Header / Footer
-import Header from "./components/layout/Header";
-import Footer from "./components/layout/Footer";
+import Header from "./design/layout/Header";
+import Footer from "./design/layout/Footer";
 
 export const metadata: Metadata = {
   title: "MBRI Compute Demo",

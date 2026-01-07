@@ -4,11 +4,11 @@
 
 import React from "react";
 // 匯入所有 Fields (請確認路徑是否正確，這裡使用您 Page 中假設的路徑)
-import InputField from "@/app/components/ui/Fields/InputField";
-import NumberField from "@/app/components/ui/Fields/NumberField";
-import SelectField from "@/app/components/ui/Fields/SelectField";
+import InputField from "@/app/design/ui/Fields/InputField";
+import NumberField from "@/app/design/ui/Fields/NumberField";
+import SelectField from "@/app/design/ui/Fields/SelectField";
 
-import { ProfileFormState, Sex } from "@/app/(pages)/PSP/utils/PSPForm.types";
+import { ProfileFormState, Sex } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 
 // 定義組件需要的屬性 (form 狀態、更新函式、重置函式)
 interface ProfileSettingsFormProps {

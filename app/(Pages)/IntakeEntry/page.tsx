@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import FoodSelectionPanel from "@/app/components/widgets/FoodSelectionPanel";
+import FoodSelectionPanel from "@/app/design/widgets/FoodSelectionPanel";
 
 export default function AddIntakePage() {
   const [name, setName] = useState("");

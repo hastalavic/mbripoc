@@ -1,10 +1,10 @@
-// app/(pages)/PSP/page.tsx
+// app/(Pages)/PSP/page.tsx
 
 "use client";
 
 import MBRI, { ProfileFormState, defaultProfile } from "@/app/Barrel";
 import { useState } from "react";
-import ButtonStartPointStateGenerator from "@/app/(pages)/PSP/components/ButtonStartPointStateGenerator.component";
+import ButtonStartPointStateGenerator from "@/app/(Pages)/PSP/components/ButtonStartPointStateGenerator.component";
 
 export default function BioSetupPage() {
   const [form, setForm] = useState<ProfileFormState>(defaultProfile);

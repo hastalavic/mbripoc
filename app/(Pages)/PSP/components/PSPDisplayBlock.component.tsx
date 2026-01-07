@@ -3,7 +3,7 @@
 "use client";
 
 import React from "react";
-import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 import { computeTotalRequirement } from "@/app/_engine/computes/personalize/RequirementAggregator.compute";
 
 interface PSPSummaryAndDebugProps {

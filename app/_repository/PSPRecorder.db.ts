@@ -4,7 +4,7 @@
 // 每一筆紀錄代表在特定時間點的 PSP 狀態快照。
 // -------------------------------------------------------
 
-import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 import { v4 as uuid } from "uuid";
 
 // ★ 單筆生理狀態紀錄

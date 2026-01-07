@@ -1,4 +1,4 @@
-// app/components/widgets/ActualIntakeResult.widget.tsx
+// app/design/widgets/ActualIntakeResult.widget.tsx
 
 "use client";
 

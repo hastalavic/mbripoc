@@ -1,8 +1,8 @@
-// app/(pages)/PSP/components/ButtonSavePSP.component.tsx
+// app/(Pages)/PSP/components/ButtonSavePSP.component.tsx
 
 "use client";
 
-import Button from "@/app/components/ui/Button";
+import Button from "@/app/design/ui/Button";
 import { addPhysioLog } from "@/app/_repository/PSPRecorder.db";
 import { v4 as uuid } from "uuid";
 // 引入型別定義

@@ -5,7 +5,7 @@
  * 以 RI * 0.7 推估「初始體內存量」。
  */
 
-import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 import { computeTotalRequirement } from "@/app/_engine/computes/personalize/RequirementAggregator.compute";
 
 export interface ElementInternalState {

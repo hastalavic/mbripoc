@@ -1,4 +1,4 @@
-// app/(pages)/PSP/hooks/usePSPLocalStorage.hook.ts
+// app/(Pages)/PSP/hooks/usePSPLocalStorage.hook.ts
 
 // 此 Hook 用於管理 PSP 表單的本地儲存（localStorage），負責載入、儲存與重置資料。
 // 已實作「草稿 (Draft)」與「正式基準 (Official Snapshot)」分離機制。

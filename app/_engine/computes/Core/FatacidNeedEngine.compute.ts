@@ -4,7 +4,7 @@
 // 不拆 ALA / EPA / DHA，只看總桶
 // ---------------------------------------------------------
 
-import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 
 export interface OmegaBucket {
   RI: number;          // 建議攝取量 mg/day

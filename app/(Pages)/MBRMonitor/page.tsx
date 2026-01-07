@@ -1,7 +1,7 @@
 "use client";
 
-import MonitorChart from "@/app/components/graphs/MonitorChart";
-import NutrientGauge from "@/app/components/graphs/NutrientGauge";
+import MonitorChart from "@/app/design/graphs/MonitorChart";
+import NutrientGauge from "@/app/design/graphs/NutrientGauge";
 
 export default function Home() {
   return (

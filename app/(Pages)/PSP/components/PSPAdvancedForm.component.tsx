@@ -3,8 +3,8 @@
 "use client";
 
 import React from "react";
-import SelectField from "@/app/components/ui/Fields/SelectField";
-import { ProfileFormState } from "../utils/PSPForm.types";
+import SelectField from "@/app/design/ui/Fields/SelectField";
+import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
 
 interface PSPFormProps {
   form: ProfileFormState;

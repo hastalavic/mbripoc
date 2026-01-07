@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import FieldBase from "@/app/components/ui/FieldBase";
+import FieldBase from "@/app/design/ui/FieldBase";
 
 type InputFieldProps = {
   label: string;
