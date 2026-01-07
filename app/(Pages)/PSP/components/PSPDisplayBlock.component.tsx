@@ -1,7 +1,9 @@
+// app/%28pages%29/PSP/components/PSPDisplayBlock.component.tsx
+
 "use client";
 
 import React from "react";
-import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
 import { computeTotalRequirement } from "@/app/_engine/computes/personalize/RequirementAggregator.compute";
 
 interface PSPSummaryAndDebugProps {

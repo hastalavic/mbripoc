@@ -1,10 +1,12 @@
+// app/(pages)/PSP/components/ButtonStartPointStateGenerator.component.tsx
+
 "use client";
 
 import Button from "@/app/components/ui/Button";
 import { v4 as uuid } from "uuid";
-import { computeInitialInternalState } from "@/app/_engine/computes/tasks/StartPointInternalState.compute";
-import useStartPointHistory from "@/app/(FeaturePages)/PSP/hooks/useStartPointHistory.hook";
-import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
+import { computeInitialInternalState } from "@/app/_engine/computes/personalize/StartPointInternalState.compute";
+import useStartPointHistory from "@/app/(pages)/PSP/hooks/useStartPointHistory.hook";
+import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
 import { LogPhysioDynamic } from "@/app/_repository/PSPRecorder.db";
 
 interface ButtonStartPointProps {

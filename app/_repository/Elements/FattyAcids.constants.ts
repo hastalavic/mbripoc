@@ -5,21 +5,33 @@
  * ========================= */
 export const FA_ELEMENTS = {
   FA_OM3: {
-    DisplayName: "Omega-3",
-    Standard_Unit: "mg",
-    isAIRequired: true,
-    isVisible: true,
-    DefaultTarget: 1000,
-    DefaultHalfLife_hr: 16,
-    Category: "FattyAcids"
+    element: {
+      DisplayName_zh: "Omega-3 脂肪酸",
+      DisplayName_en: "Omega-3",
+      Name_en: "n-3 Fatty Acids",
+      Standard_Unit: "mg",
+      Category: "FattyAcids",
+      isAIRequired: true,
+      isVisible: true,
+    },
+    model: {
+      DefaultTarget: 1000,
+      DefaultHalfLife_hr: 16,
+    },
   },
   FA_OM6: {
-    DisplayName: "Omega-6",
-    Standard_Unit: "mg",
-    isAIRequired: true,
-    isVisible: true,
-    DefaultTarget: 12000,
-    DefaultHalfLife_hr: 20,
-    Category: "FattyAcids"
+    element: {
+      DisplayName_zh: "Omega-6 脂肪酸",
+      DisplayName_en: "Omega-6",
+      Name_en: "n-6 Fatty Acids",
+      Standard_Unit: "mg",
+      Category: "FattyAcids",
+      isAIRequired: true,
+      isVisible: true,
+    },
+    model: {
+      DefaultTarget: 12000,
+      DefaultHalfLife_hr: 20,
+    },
   },
 } as const;

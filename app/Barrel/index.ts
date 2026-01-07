@@ -1,16 +1,16 @@
 // app/Barrel/index.ts
 
-import PSPForm from "@/app/(FeaturePages)/PSP/components/PSPAdvancedForm.component";
-import ProfileSettingsForm from "@/app/(FeaturePages)/PSP/components/PSPBasicForm.component";
-import PSPSummaryAndDebug from "@/app/(FeaturePages)/PSP/components/PSPDisplayBlock.component";
-import ButtonSavePSP from "@/app/(FeaturePages)/PSP/components/ButtonSavePSP.component";
+import PSPForm from "@/app/(pages)/PSP/components/PSPAdvancedForm.component";
+import ProfileSettingsForm from "@/app/(pages)/PSP/components/PSPBasicForm.component";
+import PSPSummaryAndDebug from "@/app/(pages)/PSP/components/PSPDisplayBlock.component";
+import ButtonSavePSP from "@/app/(pages)/PSP/components/ButtonSavePSP.component";
 import MBRIDebugPanel from "@/app/components/Debug/MBRIDebugPanel";
 
-import usePSPForm from "@/app/(FeaturePages)/PSP/hooks/usePSPForm.hook";
-import usePSPLocalStorage from "@/app/(FeaturePages)/PSP/hooks/usePSPLocalStorage.hook";
+import usePSPForm from "@/app/(pages)/PSP/hooks/usePSPForm.hook";
+import usePSPLocalStorage from "@/app/(pages)/PSP/hooks/usePSPLocalStorage.hook";
 
-import { computeBMI } from "@/app/(FeaturePages)/PSP/utils/computeBMI";
-import { defaultProfile, ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
+import { computeBMI } from "@/app/_engine/computes/personalize/BMI.compute";
+import { defaultProfile, ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
 
 import PageTitleBlock from "@/app/components/layout/PageTitleBlock";
 import DateTimePicker from "@/app/components/ui/DateTimePicker/DateTimePicker";

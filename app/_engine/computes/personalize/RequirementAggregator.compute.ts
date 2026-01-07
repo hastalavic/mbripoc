@@ -5,7 +5,7 @@
 // 產生「一日完整營養需求矩陣 RI」。
 // ---------------------------------------------------------
 
-import { ProfileFormState } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
+import { ProfileFormState } from "@/app/(pages)/PSP/utils/PSPForm.types";
 import { computeMicroNutriRequirement } from "../Core/MicroNutriNeedEngine.compute";
 import { computeMacronutrientRequirements } from "../Core/MacroNutriNeedEngine.compute";
 import { computeFatacidRequirement } from "../Core/FatacidNeedEngine.compute"; // ✅ 新增的導入

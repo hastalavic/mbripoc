@@ -221,7 +221,7 @@
     "Fat_Omega3": 0,
     "Fat_Omega6": 5,
     "Fat_Trans": 0.05,
-    "Vit_A": 0,
+    "": 0,
     "Vit_B_Total": 0.2,
     "Vit_C": 1,
     "Vit_D": 0,

@@ -1,3 +1,5 @@
+// app/%28pages%29/PSP/components/PSPBasicForm.component.tsx
+
 "use client";
 
 import React from "react";
@@ -6,7 +8,7 @@ import InputField from "@/app/components/ui/Fields/InputField";
 import NumberField from "@/app/components/ui/Fields/NumberField";
 import SelectField from "@/app/components/ui/Fields/SelectField";
 
-import { ProfileFormState, Sex } from "@/app/(FeaturePages)/PSP/utils/PSPForm.types";
+import { ProfileFormState, Sex } from "@/app/(pages)/PSP/utils/PSPForm.types";
 
 // 定義組件需要的屬性 (form 狀態、更新函式、重置函式)
 interface ProfileSettingsFormProps {

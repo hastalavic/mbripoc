@@ -4,16 +4,6 @@
  * Element Registry (SSOT)
  * ==================================================
  * 系統中「所有元素」的唯一出口（含 MBF）
- *
- * 職責：
- * - 定義「有哪些元素存在」
- * - 定義元素的基本、靜態、不可爭議屬性
- *
- * ❌ 不負責：
- * - 生理模型
- * - 計算參數
- * - 半衰期推算
- * - 緩解 / 風險邏輯
  */
 
 import { MACRO_ELEMENTS } from "./Elements/Macronutrients.constants";
@@ -28,40 +18,45 @@ import { MBF_BASE } from "./Elements/MBFBase.constants";
  * ElementDefinition
  * --------------------------------------------------
  * 元素的「最小不可變描述」
+ * 完全對齊 MBF_BASE 標準格式
  */
 export interface ElementDefinition {
-  /** 顯示名稱（UI / Schema 用） */
-  DisplayName: string;
+  /** 中文顯示名稱（UI / 中文報告用） */
+  DisplayName_zh: string;
+
+  /** 英文顯示名稱（UI 用，可縮寫如 AGEs） */
+  DisplayName_en: string;
+
+  /** 英文完整名稱（學術 / 專用） */
+  Name_en: string;
 
   /** 標準單位（Schema / 計算一致性） */
   Standard_Unit: string;
+
+  /** 分類用途（Macro / Vitamins / MBF / Bioactives 等） */
+  Category: string;
 
   /** 是否由 LLM 提供 */
   isAIRequired: boolean;
 
   /** 是否在 UI 顯示 */
   isVisible: boolean;
-
-  /** 分類用途（Macro / Vitamins / Burden / etc.） */
-  Category: string;
 }
 
 /**
  * extractElementLayer
  * --------------------------------------------------
- * 將不同來源的定義「統一抽取為 ElementDefinition」
- *
- * 規則：
- * - 若本身就是 ElementDefinition → 直接使用
- * - 若為 { element, model } 結構 → 只取 element
+ * 統一抽取邏輯
+ * * 由於我們已經統一了底層格式為 { element, model }，
+ * 這裡的邏輯變得非常穩定且透明。
  */
 function extractElementLayer(
-  source: Record<string, any>
+  source: Record<string, { element: any }>
 ): Record<string, ElementDefinition> {
   return Object.fromEntries(
     Object.entries(source).map(([key, value]) => [
       key,
-      value.element ?? value,
+      value.element, // 直接取 element 即可，結構已統一
     ])
   );
 }
@@ -81,5 +76,7 @@ export const ElementKnowledgeBase = {
   ...extractElementLayer(MBF_BASE),
 } as const satisfies Record<string, ElementDefinition>;
 
+/** 導出 Key 型別，供全系統（如 Adapter, Widget）使用 */
 export type ElementKey = keyof typeof ElementKnowledgeBase;
+
 export default ElementKnowledgeBase;

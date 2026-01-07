@@ -11,7 +11,9 @@
 export const VIT_ELEMENTS = {
   VIT_A: {
     element: {
-      DisplayName: "維生素 A",
+      DisplayName_zh: "維生素 A",
+      DisplayName_en: "Vitamin A",
+      Name_en: "Retinol / Vitamin A",
       Standard_Unit: "mcg RAE",
       isAIRequired: true,
       isVisible: true,
@@ -25,7 +27,9 @@ export const VIT_ELEMENTS = {
 
   VIT_B1: {
     element: {
-      DisplayName: "維生素 B1",
+      DisplayName_zh: "維生素 B1",
+      DisplayName_en: "Vitamin B1",
+      Name_en: "Thiamine",
       Standard_Unit: "mg",
       isAIRequired: true,
       isVisible: true,
@@ -39,7 +43,9 @@ export const VIT_ELEMENTS = {
 
   VIT_B2: {
     element: {
-      DisplayName: "維生素 B2",
+      DisplayName_zh: "維生素 B2",
+      DisplayName_en: "Vitamin B2",
+      Name_en: "Riboflavin",
       Standard_Unit: "mg",
       isAIRequired: true,
       isVisible: true,
@@ -53,7 +59,9 @@ export const VIT_ELEMENTS = {
 
   VIT_B6: {
     element: {
-      DisplayName: "維生素 B6",
+      DisplayName_zh: "維生素 B6",
+      DisplayName_en: "Vitamin B6",
+      Name_en: "Pyridoxine",
       Standard_Unit: "mg",
       isAIRequired: true,
       isVisible: true,
@@ -67,7 +75,9 @@ export const VIT_ELEMENTS = {
 
   VIT_C: {
     element: {
-      DisplayName: "維生素 C",
+      DisplayName_zh: "維生素 C",
+      DisplayName_en: "Vitamin C",
+      Name_en: "Ascorbic Acid",
       Standard_Unit: "mg",
       isAIRequired: true,
       isVisible: true,
@@ -81,7 +91,9 @@ export const VIT_ELEMENTS = {
 
   VIT_E: {
     element: {
-      DisplayName: "維生素 E",
+      DisplayName_zh: "維生素 E",
+      DisplayName_en: "Vitamin E",
+      Name_en: "Alpha-Tocopherol",
       Standard_Unit: "mg",
       isAIRequired: true,
       isVisible: true,
@@ -95,7 +107,9 @@ export const VIT_ELEMENTS = {
 
   VIT_LK_CHOL: {
     element: {
-      DisplayName: "膽鹼",
+      DisplayName_zh: "膽鹼",
+      DisplayName_en: "Choline",
+      Name_en: "Choline",
       Standard_Unit: "mg",
       isAIRequired: true,
       isVisible: true,
