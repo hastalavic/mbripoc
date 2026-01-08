@@ -2,7 +2,7 @@
 
 import type {
   IndividualState,
-  NutrientState,
+  FoodNutrientState,
   MBFState,
   PhysioState,
 } from "./FD1.registry";
@@ -27,7 +27,7 @@ import type {
  * ================================================== */
 export interface FD1Aggregation {
   individual?: Partial<IndividualState>;
-  nutrients?: Partial<NutrientState>;
+  nutrients?: Partial<FoodNutrientState>;
   mbf?: Partial<MBFState>;
   physio?: Partial<PhysioState>;
 }

@@ -4,7 +4,7 @@
 
 import React from "react";
 import type { IntakeAnalysis } from "@/app/_ai/types/IntakeAnalysisSchema.type";
-import type { MBRIRegistryState } from "@/app/_engine/registry/FD1.registry";
+import type { RegistryState_Food } from "@/app/_engine/registry/FD1.registry";
 
 /* 🔑 Element Knowledge Base & Types */
 import { ElementKnowledgeBase, ElementDefinition } from "@/app/_repository/ElementBase.constants";
@@ -14,7 +14,7 @@ import { ElementKnowledgeBase, ElementDefinition } from "@/app/_repository/Eleme
  * ================================================== */
 type Props = {
   analysis: IntakeAnalysis;
-  fd1: MBRIRegistryState | null;
+  fd1: RegistryState_Food | null;
 };
 
 /* ==================================================

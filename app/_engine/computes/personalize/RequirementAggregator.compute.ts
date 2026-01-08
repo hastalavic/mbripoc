@@ -6,10 +6,10 @@
 // ---------------------------------------------------------
 
 import { ProfileFormState } from "@/app/(Pages)/PSP/utils/PSPForm.types";
-import { computeMicroNutriRequirement } from "../Core/MicroNutriNeedEngine.compute";
-import { computeMacronutrientRequirements } from "../Core/MacroNutriNeedEngine.compute";
-import { computeFatacidRequirement } from "../Core/FatacidNeedEngine.compute"; // ✅ 新增的導入
-import type { FatacidRequirement } from "../Core/FatacidNeedEngine.compute";
+import { computeMicroNutriRequirement } from "./MicroNutriNeedEngine.compute";
+import { computeMacronutrientRequirements } from "./MacroNutriNeedEngine.compute";
+import { computeFatacidRequirement } from "./FatacidNeedEngine.compute"; // ✅ 新增的導入
+import type { FatacidRequirement } from "./FatacidNeedEngine.compute";
 
 export interface TotalRequirementOutput {
   macros: {

@@ -12,7 +12,7 @@
  */
 
 import type { FD1Aggregation } from "./FD1.map";
-import type { MBRIRegistryState } from "./FD1.registry";
+import type { RegistryState_Food } from "./FD1.registry";
 
 /* ===============================
  * 引入 BMI task
@@ -27,7 +27,7 @@ import {
  * Registry Port
  * ================================================== */
 export interface FD1RegistryPort {
-  get(): MBRIRegistryState;
+  get(): RegistryState_Food;
   patch(patch: FD1Aggregation): void;
 }
 

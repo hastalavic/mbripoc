@@ -23,7 +23,9 @@ export type MBFKey =
   | "MBF_PAHs"
   | "MBF_FUR"
   | "MBF_PUR"
-  | "MBF_OXL";
+  | "MBF_OXL"
+  | "MBF_FRU"   // 新增：游離果糖
+  | "MBF_TFA";  // 新增：反式脂肪
 
 /* =========================
  * Element Layer
@@ -39,7 +41,7 @@ export interface MBFElementMeta {
   DisplayName_en: string;
 
   /** 英文完整名稱（學術 / 專利用，永遠全名） */
-  Name_en: string;
+  FullName_en: string;
 
   /** 標準單位 */
   Standard_Unit: string;
@@ -74,7 +76,7 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
     element: {
       DisplayName_zh: "糖化終產物",
       DisplayName_en: "AGEs",
-      Name_en: "Advanced Glycation End-products",
+      FullName_en: "Advanced Glycation End-products",
       Standard_Unit: "kU",
       Category: "MBF",
       isAIRequired: true,
@@ -91,7 +93,7 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
     element: {
       DisplayName_zh: "丙烯醯胺",
       DisplayName_en: "Acrylamide",
-      Name_en: "Acrylamide",
+      FullName_en: "Acrylamide",
       Standard_Unit: "mcg",
       Category: "MBF",
       isAIRequired: true,
@@ -108,7 +110,7 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
     element: {
       DisplayName_zh: "多環芳香烴",
       DisplayName_en: "PAHs",
-      Name_en: "Polycyclic Aromatic Hydrocarbons",
+      FullName_en: "Polycyclic Aromatic Hydrocarbons",
       Standard_Unit: "ng",
       Category: "MBF",
       isAIRequired: true,
@@ -125,7 +127,7 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
     element: {
       DisplayName_zh: "呋喃",
       DisplayName_en: "Furan",
-      Name_en: "Furan",
+      FullName_en: "Furan",
       Standard_Unit: "mcg",
       Category: "MBF",
       isAIRequired: true,
@@ -142,7 +144,7 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
     element: {
       DisplayName_zh: "普林",
       DisplayName_en: "Purines",
-      Name_en: "Purines",
+      FullName_en: "Purines",
       Standard_Unit: "mg",
       Category: "MBF",
       isAIRequired: true,
@@ -159,7 +161,7 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
     element: {
       DisplayName_zh: "氧化脂質",
       DisplayName_en: "OXL",
-      Name_en: "Oxidized Lipids",
+      FullName_en: "Oxidized Lipids",
       Standard_Unit: "OxL-U",
       Category: "MBF",
       isAIRequired: true,
@@ -171,6 +173,41 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
       capacity_reference: 6900,
     },
   },
+
+  MBF_FRU: {
+    element: {
+      DisplayName_zh: "游離果糖",
+      DisplayName_en: "Fructose",
+      FullName_en: "Free Fructose (Surge)",
+      Standard_Unit: "g",
+      Category: "MBF",
+      isAIRequired: true,
+      isVisible: true,
+    },
+    model: {
+      l1_halfLife_hr: 4,      // 肝臟處理速度快，但代謝壓力瞬時爆發
+      l2_recovery_hr: 24,     // 代謝後的尿酸與脂肪酸壓力需一天恢復
+      capacity_reference: 25, // 每日肝臟緩衝閾值約 25g
+    },
+  },
+
+  MBF_TFA: {
+    element: {
+      DisplayName_zh: "反式脂肪",
+      DisplayName_en: "Trans Fats",
+      FullName_en: "Trans Fatty Acids",
+      Standard_Unit: "g",
+      Category: "MBF",
+      isAIRequired: true,
+      isVisible: true,
+    },
+    model: {
+      l1_halfLife_hr: 72,     // 極難代謝，會嵌入細胞膜
+      l2_recovery_hr: 168,    // 系統修復期長達一週 (168hr)
+      capacity_reference: 2,  // 攝取量應趨近於 0，閾值設極低
+    },
+  },
+  
 } as const;
 
 export default MBF_BASE;

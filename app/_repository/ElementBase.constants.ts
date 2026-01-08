@@ -28,7 +28,7 @@ export interface ElementDefinition {
   DisplayName_en: string;
 
   /** 英文完整名稱（學術 / 專用） */
-  Name_en: string;
+  FullName_en: string;
 
   /** 標準單位（Schema / 計算一致性） */
   Standard_Unit: string;

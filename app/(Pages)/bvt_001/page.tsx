@@ -16,7 +16,7 @@ import { buildMBFResults } from "@/app/_engine/computes/MBF/results/MBFresults";
 // 🔹 FD1
 import {
   EMPTY_MBRI_REGISTRY_STATE,
-  type MBRIRegistryState,
+  type RegistryState_Food,
 } from "@/app/_engine/registry/FD1.registry";
 
 // 🔹 Widget
@@ -26,7 +26,7 @@ export default function Bvt001Page() {
   /* ==================================================
    * 🧪 DEBUG SWITCH（唯一總開關）
    * ================================================== */
-  const DEBUG = false; // ← 要看 debug 改成 true
+  const DEBUG = true; // ← 要看 debug 改成 true
 
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState<{
@@ -109,7 +109,7 @@ export default function Bvt001Page() {
   /* ==================================================
    * 🔑 FD1 SNAPSHOT（自動焊接）
    * ================================================== */
-  const fd1 = useMemo<MBRIRegistryState | null>(() => {
+  const fd1 = useMemo<RegistryState_Food | null>(() => {
     if (!analysis || !actualIntake || !mbfResults) return null;
 
     return {
