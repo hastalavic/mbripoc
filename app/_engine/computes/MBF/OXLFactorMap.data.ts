@@ -8,6 +8,7 @@ export const OXL_FC_FACTOR = {
   seafood: 4.0,
   proc_NP: 0.5,
   proc_P: 6.0,
+  fruit_veg: 0,  // 👈 新增：水果與蔬菜類別，基礎係數設為 0
   unknown: 1.0,
 } as const;
 

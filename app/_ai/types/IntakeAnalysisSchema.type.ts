@@ -42,6 +42,7 @@ export const FAC_OXL_FoodCategoryEnum = z.enum([
   "seafood",
   "proc_NP",
   "proc_P",
+  "fruit_veg",
   "unknown",
 ]);
 
@@ -66,7 +67,7 @@ Object.entries(ElementKnowledgeBase).forEach(([key, cfg]) => {
   elementFields[key] = z
     .number()
     .default(0)
-    .describe(`${cfg.DisplayName} (${cfg.Standard_Unit})`);
+    .describe(`${cfg.DisplayName_zh} (${cfg.Standard_Unit})`);
 });
 
 // --------------------------------------------------
@@ -83,23 +84,30 @@ const basicFields = {
     .array(z.string())
     .max(5)
     .default([])
-    .describe("semantic components only, max length = 5"),
+    .describe("structural and ingredient components (e.g., meat, batter, sauce)"),
 
   intake_count: z
     .number()
     .default(1)
-    .describe("numeric quantity, default = 1"),
+    .describe("numeric quantity (e.g., if '2 servings', count = 2)"),
 
   original_unit: z
     .string()
     .default("份")
-    .describe('extracted unit label, default = "份"'),
+    .describe('extracted unit label (e.g., "份", "個", "碗")'),
+
+  weight_per_unit: z
+    .number()
+    .default(100)
+    .describe(
+      "The weight/volume of a SINGLE unit (g or ml). If user says '100g 2份', this is 100."
+    ),
 
   serving_weight: z
     .number()
     .default(100)
     .describe(
-      "user-described serving weight for ONE meal; g for food, ml for beverage"
+      "The TOTAL weight/volume consumed (weight_per_unit * intake_count). If user says '100g 2份', this MUST be 200."
     ),
 
   intake_type: IntakeTypeEnum.default("food"),

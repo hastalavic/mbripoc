@@ -116,120 +116,172 @@ GLOBAL RULES
 	Values in // are unit references only. DO NOT include these characters or unit strings in the output keys or values.
 
 BASIC INFORMATION
-Rules
-	serving_weight: 
-    Estimate user-described amount only.
-		MUST NOT scale any other values.
-		MUST NOT affect any per-100g / per-100ml values.
-		MUST NOT be inferred from intake_components or intake_count.  
-		If weight cannot be estimated, set serving_weight = 100.
+  Rules
+    weight_per_unit:
+      - The weight or volume of a SINGLE unit or portion (g/ml).
+      - If user says "100g 2份", weight_per_unit = 100.
+      - If user says "500ml milk", weight_per_unit = 500.
+      - If weight is not explicitly stated, estimate based on food type (e.g., 1 apple ≈ 150).
 
-	intake_type:
-    If = "beverage", serving_weight unit = ml, otherwise g.
-		multiple components (bento, ramen set, combo) → "composite"
-		otherwise → "food"
+    serving_weight: 
+      - The TOTAL weight/volume of the entire intake.
+      - MUST be calculated as: (weight_per_unit * intake_count).
+      - If user input is "100g 2份", serving_weight MUST be 200.
+      - MUST NOT scale any other per-100g / per-100ml nutrient values.
+      - If weight cannot be estimated at all, default serving_weight to 100.
 
-	intake_state:
-    default = "normal"
-	
-  intake_components:
-    Extracted semantic food items ONLY.
-    MUST NOT be used to infer cooking method, oxidation level, or exposure factors.
-    MUST represent edible components or ingredients.
-    MUST NOT include cooking methods, processing states, or - preparation styles (e.g. grilled, fried, roasted, boiled, raw).
-    Cooking-related semantics MUST be expressed ONLY via fac_mbf_oxl_ts.
-    NOT used for nutrient or MBF calculation.
-    Max length = 5. Order does not imply proportion.
-	
-    intake_count and original_unit are for semantic capture only.
-		They MUST NOT be used to infer or adjust serving_weight or nutrients.
+    intake_type:
+      - If = "beverage", units = ml, otherwise g.
+      - multiple components (bento, ramen set, combo) → "composite"
+      - otherwise → "food"
 
-	original_unit:
-    If both a weight unit and a discrete count unit are present,the discrete count unit takes priority for original_unit,but serving_weight MUST still equal the stated weight value.
-    If user input contains a numeric value followed by a weight unit (g, gram, ml), and no discrete unit (e.g. 個, 份, 塊, 隻, 片, 條) is explicitly stated:
-      - intake_count MUST be 1
-      - original_unit MUST be an inferred serving unit such as "份"
-      - serving_weight MUST equal the stated weight value
-    Output ONLY if a discrete count unit is explicitly stated by user (e.g. 個, 份, 塊, 隻, 片).
-    Weight units (g, ml) MUST NOT be used as original_unit.
-    	
-Keys
-	intake_name : string // food name
-	intake_brand : string // brand or vendor, empty if unknown
-	intake_components: array<string> // semantic components only, max length = 5.
-	intake_count : number // numeric quantity
-	original_unit : string // extracted unit label
-	serving_weight : number // Sum of all items' weights for ONE meal(g).
-	intake_type : enum // ["food","beverage","supplement","ingredient","composite"]
-	intake_state : enum // ["normal","undercooked","overcooked","charred"]
+    intake_state:
+      - default = "normal"
+    
+    intake_components:
+      - Extracted structural and ingredient components ONLY (e.g., meat, skin, batter, sauce, vegetable, bone-in).
+      - MUST NOT include "cooking methods" (e.g., use "chicken", NOT "fried chicken").
+      - SHOULD include structural elements affecting nutrition (e.g., ["chicken", "batter", "skin"]).
+      - Max length = 10. Order does not imply proportion.
+
+    original_unit:
+      - If a discrete count unit (個, 份, 塊, 隻, 片, 條) is stated, use it.
+      - Weight units (g, ml) MUST NOT be used as original_unit.
+      - If no discrete unit is stated but weight is given, use "份".
+
+INFORMATION
+  Keys
+    intake_name : string // food name
+    intake_brand : string // brand or vendor, empty if unknown
+    intake_components : array<string> // structural components only, max length 10.
+    intake_count : number // numeric quantity
+    original_unit : string // extracted unit label (e.g., "份", "個")
+    weight_per_unit : number // weight of a single unit (g or ml)
+    serving_weight : number // TOTAL weight (weight_per_unit * intake_count)
+    intake_type : enum // ["food","beverage","supplement","ingredient","composite"]
+    intake_state : enum // ["normal","undercooked","overcooked","charred"]
 	
 ELEMENTS
-Rules
-	Output must be a single-level JSON object. No nesting. No arrays except _unknown.
-	All numeric values represent exposure per 100g (solid) or 100ml (liquid).
-	All fields defined below MUST be output, except _unknown (omit if empty).
-	All nutrient and MBF fields MUST be numbers. Use 0 if unknown.
-	Inherent absence → output 0, do NOT add to _unknown
-	Cannot reasonably estimate → output 0 AND add field name to _unknown
-	If no unknown fields exist, omit _unknown entirely
+  Rules
+    Output must be a single-level JSON object. No nesting. No arrays except _unknown.
+    All numeric values represent exposure per 100g (solid) or 100ml (liquid).
+    All fields defined below MUST be output, except _unknown (omit if empty).
+    All nutrient and MBF fields MUST be numbers. Use 0 if unknown.
+    Inherent absence → output 0, do NOT add to _unknown
+    Cannot reasonably estimate → output 0 AND add field name to _unknown
+    If no unknown fields exist, omit _unknown entirely
 	
-Keys
 MACRONUTRIENTS (per 100g / 100ml)
-  NU_KCAL : // Energy (kcal)
-	NU_CARB : // Carbohydrates (g)
-	NU_FBR : // Dietary Fiber (g)
-	NU_FAT : // Total Fat (g)
-	NU_PRO : // Protein (g)
-	NU_WATER : // Water Content (g)
-	
-VITAMINS (per 100g / 100ml)
-	VIT_A : // Vitamin A, (mcg) RAE
-	VIT_B1 : // Vitamin B1 (Thiamine) (mg)
-	VIT_B2 : // Vitamin B2 (Riboflavin) (mg)
-	VIT_B6 : // Vitamin B6 (Pyridoxine) (mg)
-	VIT_C : // Vitamin C (Ascorbic Acid) (mg)
-	VIT_E : // Vitamin E  (mg)α-TE
-	VIT_LK_CHOL : // Choline (mg)
+  Keys
+    NU_KCAL : // Energy (kcal)
+    NU_CARB : // Carbohydrates (g)
+    NU_FBR : // Dietary Fiber (g)
+    NU_FAT : // Total Fat (g)
+    NU_PRO : // Protein (g)
+    NU_WATER : // Water Content (g)
+    NU_SUGAR : // Total Sugars (g)
 
 FATTY ACIDS (per 100g / 100ml)
-FA_OM3 : // Total Omega-3 Fatty Acids (mg)
-FA_OM6 : // Total Omega-6 Fatty Acids (mg)
+  Keys
+    // --- Basic & Structure (g) ---
+    FA_SAT   : // Saturated Fatty Acids (g)
+    FA_MUFA  : // Monounsaturated Fatty Acids (g)
+    FA_PUFA  : // Polyunsaturated Fatty Acids (g)
+    FA_TFA   : // Trans Fatty Acids (g)
+    FA_CHO   : // Cholesterol (mg)
+    FA_MCT   : // Medium-Chain Triglycerides (g)
+
+    // --- Omega-3 (Anti-inflammatory) (mg) ---
+    FA_OM3   : // Total Omega-3 Fatty Acids (mg)
+    FA_ALA   : // Alpha-Linolenic Acid (mg)
+    FA_EPA   : // Eicosapentaenoic Acid (mg)
+    FA_DHA   : // Docosahexaenoic Acid (mg)
+
+    // --- Omega-6 (Pro-inflammatory/Balance) (mg) ---
+    FA_OM6   : // Total Omega-6 Fatty Acids (mg)
+    FA_LA    : // Linoleic Acid (mg)
+    FA_GLA   : // Gamma-Linolenic Acid (mg)
+    FA_DGLA  : // Dihomo-Gamma-Linolenic Acid (mg)
+    FA_AA    : // Arachidonic Acid (mg)
+
+    // --- Omega-9 (mg) ---
+    FA_OM9   : // Omega-9 Fatty Acids (mg)
+
+VITAMINS (per 100g / 100ml)
+  Keys
+    VIT_A : // Vitamin A (mcg RAE)
+    VIT_B1 : // Vitamin B1 (Thiamine) (mg)
+    VIT_B2 : // Vitamin B2 (Riboflavin) (mg)
+    VIT_B3 : // Vitamin B3 (Niacin) (mg)
+    VIT_B5 : // Vitamin B5 (Pantothenic acid) (mg)
+    VIT_B6 : // Vitamin B6 (Pyridoxine) (mg)
+    VIT_B7 : // Vitamin B7 (Biotin) (mcg)
+    VIT_B9 : // Vitamin B9 (Folate) (mcg DFE)
+    VIT_B12 : // Vitamin B12 (Cobalamin) (mcg)
+    VIT_C : // Vitamin C (Ascorbic Acid) (mg)
+    VIT_D : // Vitamin D (mcg)
+    VIT_E : // Vitamin E (mg α-TE)
+    VIT_K : // Total Vitamin K (mcg)
+
+    VIT_LK_CHOL : // Choline (mg)
 
 MINERALS (per 100g / 100ml)
-MIN_K : // Potassium (mg)
-MIN_SE : // Selenium (mcg)
-MIN_MG : // Magnesium (mg)
-MIN_ZN : // Zinc (mg)
+  Keys
+    MIN_K  : // Potassium (mg)
+    MIN_CL : // Chloride (mg)
+    MIN_NA : // Sodium (mg)
+    MIN_CA : // Calcium (mg)
+    MIN_P  : // Phosphorus (mg)
+    MIN_MG : // Magnesium (mg)
+    MIN_S  : // Sulfur (mg)
+    MIN_FE : // Iron (mg)
+    MIN_ZN : // Zinc (mg)
+    MIN_F  : // Fluoride (mg)
+    MIN_MN : // Manganese (mg)
+    MIN_CU : // Copper (mg)
+    MIN_I  : // Iodine (mcg)
+    MIN_SE : // Selenium (mcg)
+    MIN_MO : // Molybdenum (mcg)
+    MIN_CR : // Chromium (mcg)
+    MIN_CO : // Cobalt (mcg)
 
 AMINO ACIDS & PRECURSORS (per 100g / 100ml)
-AA_GLY : // Glycine (mg)
-AA_D_NAC : // N-Acetyl-Cysteine (NAC) (mg)
+  Keys
+    AA_GLY : // Glycine (mg)
+    AA_D_NAC : // N-Acetyl-Cysteine (NAC) (mg)
 
-PHYTOCHEMICALS (per 100g / 100ml)
-PHY_CUR : // Curcumin (mg)
+BIOACTIVES (per 100g / 100ml)
+  Keys
+    PHY_ANT_TOTAL : // Total Anthocyanins (mg)
 
 METABOLIC BURDEN FACTORS (per 100g / 100ml)
-MBF_AGEs : // Advanced Glycation End-products (kU)
-MBF_ACR  : // Acrylamide (mcg)
-MBF_PAHs : // Polycyclic Aromatic Hydrocarbons (ng)
-MBF_FUR  : // Furan (mcg)
-MBF_PUR  : // Purines (mg)
+  Rules
+    MBF_FRU calculation logic: Count ONLY free fructose from added sugars (sucrose, HFCS), honey, and fruit juices. For Whole Fruits (intact fiber matrix), set MBF_FRU = 0 to distinguish metabolic pathways.
+  Keys
+    MBF_AGEs : // Advanced Glycation End-products (kU)
+    MBF_ACR  : // Acrylamide (mcg)
+    MBF_PAHs : // Polycyclic Aromatic Hydrocarbons (ng)
+    MBF_FUR  : // Furan (mcg)
+    MBF_PUR  : // Purines (mg)
+    MBF_FRU  : // Free Fructose (g)
+
 
 OXIDATION FACTORS (per 100g / 100ml)
-Rules
-Enum fields MUST use one of the listed values only. No new values allowed.
-
-fac_mbf_oxl_fc : enum
-["anml_L","anml_S","fish","seafood","proc_NP","proc_P","unknown"]
-// anml_L  = pork, beef, lamb
-// anml_S  = poultry, small animals
-// proc_NP = non-pre-fried processed foods
-// proc_P  = pre-fried processed foods
-fac_mbf_oxl_ts : enum
-["raw","steam","stew","stir","roast","fry","unknown"]
+  Rules
+    Enum fields MUST use one of the listed values only. No new values allowed.
+  keys
+    fac_mbf_oxl_fc : enum
+      ["anml_L","anml_S","fish","seafood","proc_NP","proc_P","fruit_veg","unknown"]
+        // anml_L  = pork, beef, lamb
+        // anml_S  = poultry, small animals
+        // proc_NP = non-pre-fried processed foods
+        // proc_P  = pre-fried processed foods
+        // fruit_veg = fruits and vegetables
+    fac_mbf_oxl_ts : enum
+      ["raw","steam","stew","stir","roast","fry","unknown"]
 
 UNKNOWN FIELD LIST
-_unknown : array<string>
+  _unknown : array<string>
 
 USER INPUT
 {{INPUT_TEXT}}

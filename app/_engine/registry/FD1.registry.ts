@@ -51,6 +51,8 @@ export interface FattyAcids {
   FA_TFA?: number;
   /** 膽固醇 (Cholesterol) */
   FA_CHO?: number;
+  /**  // MCT (中鏈脂肪酸)  */
+  FA_MCT?: number;
 
   // --- Omega-3 (抗發炎家族) ---
   /** Omega-3 總量：體內抗發炎能力的核心。 */

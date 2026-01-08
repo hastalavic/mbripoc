@@ -124,8 +124,8 @@ export const MIN_ELEMENTS = {
       FullName_en: "Sulfur",
       Standard_Unit: "mg",
       Category: "Minerals",
-      isAIRequired: false,
-      isVisible: false,
+      isAIRequired: true,
+      isVisible: true,
     },
     model: {
       DefaultTarget: null,
@@ -240,8 +240,8 @@ export const MIN_ELEMENTS = {
       FullName_en: "Fluoride",
       Standard_Unit: "mg",
       Category: "Minerals",
-      isAIRequired: false,
-      isVisible: false,
+      isAIRequired: true,
+      isVisible: true,
     },
     model: {
       DefaultTarget: null,
@@ -288,8 +288,8 @@ export const MIN_ELEMENTS = {
       FullName_en: "Cobalt",
       Standard_Unit: "mcg",
       Category: "Minerals",
-      isAIRequired: false,
-      isVisible: false,
+      isAIRequired: true,
+      isVisible: true,
     },
     model: {
       DefaultTarget: null,

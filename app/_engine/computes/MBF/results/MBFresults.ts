@@ -21,6 +21,8 @@ export type MBFResults = {
   MBF_PAHs: number;
   MBF_FUR: number;
   MBF_PUR: number;
+  MBF_FRU: number;
+  MBF_TFA: number;
 };
 
 /**
@@ -50,5 +52,7 @@ export function buildMBFResults(
     MBF_PAHs: actualIntake.MBF_PAHs ?? 0,
     MBF_FUR: actualIntake.MBF_FUR ?? 0,
     MBF_PUR: actualIntake.MBF_PUR ?? 0,
+    MBF_FRU: actualIntake.MBF_FRU ?? 0,
+    MBF_TFA: actualIntake.FA_TFA ?? 0,
   };
 }

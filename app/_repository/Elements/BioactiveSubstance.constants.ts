@@ -10,7 +10,7 @@
  * - model：動態模型參數（給未來 PSP / BDR / DBSG）
  */
 
-export const PHY_ELEMENTS = {
+export const BIOACTIVE_ELEMENTS = {
   PHY_CUR: {
     element: {
       DisplayName_zh: "薑黃素",
@@ -37,7 +37,7 @@ export const PHY_ELEMENTS = {
       FullName_en: "Tea Polyphenols",
       Standard_Unit: "mg",
       Category: "Bioactives",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: {
@@ -53,7 +53,7 @@ export const PHY_ELEMENTS = {
       FullName_en: "Anthocyanins",
       Standard_Unit: "mg",
       Category: "Bioactives",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: {

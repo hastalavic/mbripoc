@@ -134,10 +134,10 @@ export default function Bvt001Page() {
       <section style={{ width: "100%", maxWidth: 760, margin: "0 auto" }}>
         <header style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800 }}>
-            BVT 營養分析系統
+            Enbryt 食物分析系統 v1.0
           </h1>
           <p style={{ color: "#666", marginTop: 4 }}>
-            輸入飲食內容，即時獲取代謝分析
+            輸入食物，即時獲取營養素、代謝負擔成分等詳細分析結果。
           </p>
         </header>
 
@@ -154,7 +154,7 @@ export default function Bvt001Page() {
             onChange={(e) =>
               e.target.value.length <= maxChars && setText(e.target.value)
             }
-            placeholder="請輸入食物名稱與份量..."
+            placeholder="請輸入食物名稱與份量（例如：烤牛肉 100g 2份）..."
             rows={4}
             style={{
               width: "100%",

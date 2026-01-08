@@ -11,7 +11,7 @@ import { VIT_ELEMENTS } from "./Elements/Vitamins.constants";
 import { FA_ELEMENTS } from "./Elements/FattyAcids.constants";
 import { MIN_ELEMENTS } from "./Elements/Minerals.constants";
 import { AA_ELEMENTS } from "./Elements/AminoAcids.constants";
-import { PHY_ELEMENTS } from "./Elements/BioactiveSubstance.constants";
+import { BIOACTIVE_ELEMENTS } from "./Elements/BioactiveSubstance.constants";
 import { MBF_BASE } from "./Elements/MBFBase.constants";
 
 /**
@@ -72,7 +72,7 @@ export const ElementKnowledgeBase = {
   ...extractElementLayer(FA_ELEMENTS),
   ...extractElementLayer(MIN_ELEMENTS),
   ...extractElementLayer(AA_ELEMENTS),
-  ...extractElementLayer(PHY_ELEMENTS),
+  ...extractElementLayer(BIOACTIVE_ELEMENTS),
   ...extractElementLayer(MBF_BASE),
 } as const satisfies Record<string, ElementDefinition>;
 

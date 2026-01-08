@@ -1,14 +1,3 @@
-/**
- * Fatty Acids Element Bundles
- * ==================================================
- * 對齊 FD1.registry.ts → FattyAcids interface
- *
- * 規則（你定的）：
- * - DisplayName_en：短名 / 縮寫（UI 顯示）
- * - FullName_en：英文全名（正式）
- * - Category 固定 "FattyAcids"
- */
-
 export const FA_ELEMENTS = {
   /* =========================
    * 核心脂肪分類
@@ -34,7 +23,7 @@ export const FA_ELEMENTS = {
       FullName_en: "Monounsaturated Fatty Acids",
       Standard_Unit: "g",
       Category: "FattyAcids",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: { DefaultTarget: 30, DefaultHalfLife_hr: 24 },
@@ -47,7 +36,7 @@ export const FA_ELEMENTS = {
       FullName_en: "Polyunsaturated Fatty Acids",
       Standard_Unit: "g",
       Category: "FattyAcids",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: { DefaultTarget: 20, DefaultHalfLife_hr: 24 },
@@ -63,7 +52,7 @@ export const FA_ELEMENTS = {
       isAIRequired: true,
       isVisible: true,
     },
-    model: { DefaultTarget: 0, DefaultHalfLife_hr: 48 },
+    model: { DefaultTarget: 0, DefaultHalfLife_hr: 72 },
   },
 
   FA_CHO: {
@@ -79,13 +68,26 @@ export const FA_ELEMENTS = {
     model: { DefaultTarget: 300, DefaultHalfLife_hr: 24 },
   },
 
+  FA_MCT: {
+    element: {
+      DisplayName_zh: "中鏈脂肪酸",
+      DisplayName_en: "MCT",
+      FullName_en: "Medium-Chain Triglycerides",
+      Standard_Unit: "g",
+      Category: "FattyAcids",
+      isAIRequired: true,
+      isVisible: true,
+    },
+    model: { DefaultTarget: null, DefaultHalfLife_hr: 4 },
+  },
+
   /* =========================
    * Omega-3（抗發炎軸）
    * ========================= */
 
   FA_OM3: {
     element: {
-      DisplayName_zh: "Omega-3 脂肪酸（總量）",
+      DisplayName_zh: "Omega-3 脂肪酸",
       DisplayName_en: "Omega-3",
       FullName_en: "n-3 Fatty Acids",
       Standard_Unit: "mg",
@@ -93,10 +95,7 @@ export const FA_ELEMENTS = {
       isAIRequired: true,
       isVisible: true,
     },
-    model: { 
-      DefaultTarget: 1000,
-      DefaultHalfLife_hr: 16
-    },
+    model: { DefaultTarget: 1000, DefaultHalfLife_hr: 16 },
   },
 
   FA_ALA: {
@@ -106,12 +105,10 @@ export const FA_ELEMENTS = {
       FullName_en: "Alpha-Linolenic Acid",
       Standard_Unit: "mg",
       Category: "FattyAcids",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
-    model: { DefaultTarget: 1200,
-      DefaultHalfLife_hr: 12
-    },
+    model: { DefaultTarget: 1200, DefaultHalfLife_hr: 12 },
   },
 
   FA_EPA: {
@@ -124,9 +121,7 @@ export const FA_ELEMENTS = {
       isAIRequired: true,
       isVisible: true,
     },
-    model: { DefaultTarget: 500,
-      DefaultHalfLife_hr: 18
-    },
+    model: { DefaultTarget: 500, DefaultHalfLife_hr: 18 },
   },
 
   FA_DHA: {
@@ -139,18 +134,16 @@ export const FA_ELEMENTS = {
       isAIRequired: true,
       isVisible: true,
     },
-    model: { DefaultTarget: 500,
-      DefaultHalfLife_hr: 24
-    },
+    model: { DefaultTarget: 500, DefaultHalfLife_hr: 24 },
   },
 
   /* =========================
-   * Omega-6（促 / 抗發炎平衡）
+   * Omega-6（發炎平衡）
    * ========================= */
 
   FA_OM6: {
     element: {
-      DisplayName_zh: "Omega-6 脂肪酸（總量）",
+      DisplayName_zh: "Omega-6 脂肪酸",
       DisplayName_en: "Omega-6",
       FullName_en: "n-6 Fatty Acids",
       Standard_Unit: "mg",
@@ -158,9 +151,7 @@ export const FA_ELEMENTS = {
       isAIRequired: true,
       isVisible: true,
     },
-    model: { DefaultTarget: 12000,
-      DefaultHalfLife_hr: 20
-    },
+    model: { DefaultTarget: 12000, DefaultHalfLife_hr: 20 },
   },
 
   FA_LA: {
@@ -170,7 +161,7 @@ export const FA_ELEMENTS = {
       FullName_en: "Linoleic Acid",
       Standard_Unit: "mg",
       Category: "FattyAcids",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: { DefaultTarget: 10000, DefaultHalfLife_hr: 18 },
@@ -183,7 +174,7 @@ export const FA_ELEMENTS = {
       FullName_en: "Gamma-Linolenic Acid",
       Standard_Unit: "mg",
       Category: "FattyAcids",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: { DefaultTarget: 300, DefaultHalfLife_hr: 12 },
@@ -196,7 +187,7 @@ export const FA_ELEMENTS = {
       FullName_en: "Dihomo-Gamma-Linolenic Acid",
       Standard_Unit: "mg",
       Category: "FattyAcids",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: { DefaultTarget: 200, DefaultHalfLife_hr: 14 },
@@ -226,7 +217,7 @@ export const FA_ELEMENTS = {
       FullName_en: "Omega-9 Fatty Acids",
       Standard_Unit: "mg",
       Category: "FattyAcids",
-      isAIRequired: false,
+      isAIRequired: true,
       isVisible: true,
     },
     model: { DefaultTarget: 8000, DefaultHalfLife_hr: 24 },

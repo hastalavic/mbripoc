@@ -164,7 +164,7 @@ export const MBF_BASE: Record<MBFKey, MBFDefinition> = {
       FullName_en: "Oxidized Lipids",
       Standard_Unit: "OxL-U",
       Category: "MBF",
-      isAIRequired: true,
+      isAIRequired: false,
       isVisible: true,
     },
     model: {

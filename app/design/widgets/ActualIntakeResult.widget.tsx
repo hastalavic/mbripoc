@@ -46,8 +46,7 @@ function renderCategory(
   // 使用索引簽名解決介面不匹配問題
   values: { [key: string]: number | undefined } 
 ) {
-  // ✨ 修正點 1：將 ElementKnowledgeBase 轉為陣列進行處理
-  // 並且明確宣告 meta 為 ElementDefinition
+  // 1. 根據類別過濾出定義好的元素
   const entries = Object.entries(ElementKnowledgeBase).filter(
     ([_, meta]) => {
       const m = meta as ElementDefinition;
@@ -57,9 +56,14 @@ function renderCategory(
 
   if (entries.length === 0) return null;
 
-  // 檢查是否有任何一個項目有值，若全空則不顯示標題
-  const hasValue = entries.some(([key]) => values[key] !== undefined && values[key] !== null);
-  if (!hasValue) return null;
+  // ✨ 修正點：檢查是否有任何一個項目具備「顯著值」(>= 0.01)
+  // 若該分類下所有數值都太小或為 0，則整個分類標題都不顯示
+  const hasSignificantValue = entries.some(([key]) => {
+    const val = values[key];
+    return val !== undefined && val !== null && val >= 0.01;
+  });
+
+  if (!hasSignificantValue) return null;
 
   return (
     <div style={blockStyle}>
@@ -69,7 +73,8 @@ function renderCategory(
           const m = meta as ElementDefinition;
           const value = values[key];
           
-          if (value === undefined || value === null) return null;
+          // ✨ 核心過濾：排除 null/undefined 以及小於 0.01 的極微量數值
+          if (value === undefined || value === null || value < 0.01) return null;
 
           return (
             <li key={key} style={{ marginBottom: 4, fontSize: "0.9rem" }}>
@@ -97,7 +102,6 @@ export default function ActualIntakeResultWidget({
 }: Props) {
   if (!analysis || !fd1) return null;
 
-  // ✨ 修正點 2：取得各分層數據，並加上型別斷言以符合 renderCategory 的索引簽名要求
   const nutrients = (fd1.nutrients || {}) as { [key: string]: number | undefined };
   const mbf = (fd1.mbf || {}) as { [key: string]: number | undefined };
 
@@ -145,12 +149,13 @@ export default function ActualIntakeResultWidget({
       )}
 
       {/* ===== 營養數據自動化分組 ===== */}
-      {/* ⚠️ Category 字串必須與各 .constants.ts 中的定義完全一致 */}
-      {renderCategory("大型營養素", "Macro", nutrients)}
+      {/* ⚠️ Category 字串與各 .constants.ts 中的定義完全對齊 */}
+      {renderCategory("大型營養素", "Macronutrients", nutrients)}
       {renderCategory("脂肪酸組成", "FattyAcids", nutrients)}
       {renderCategory("維生素", "Vitamins", nutrients)}
       {renderCategory("礦物質", "Minerals", nutrients)}
-      {renderCategory("機能性成分 / 胺基酸", "Bioactives", nutrients)}
+      {renderCategory("胺基酸與前驅物", "AminoAcids", nutrients)}
+      {renderCategory("生物活性成分", "Bioactives", nutrients)}
       
       {/* ===== 代謝負擔 (MBF) ===== */}
       {renderCategory("代謝負擔因子 (MBF)", "MBF", mbf)}
