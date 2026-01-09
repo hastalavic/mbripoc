@@ -156,13 +156,52 @@ export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
     <section style={{ marginTop: 24, padding: "0 10px" }}>
       <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
+      {/* 📋 攝取物基本資訊看板 (加回這裡) */}
+      <div style={{ 
+        background: "#f8fafc", 
+        borderRadius: "12px", 
+        padding: "20px", 
+        marginBottom: "24px",
+        border: "1px solid #e2e8f0"
+      }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div style={{ gridColumn: "1 / -1", borderBottom: "1px solid #e2e8f0", paddingBottom: "10px" }}>
+            <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500, letterSpacing: "0.05em" }}>攝取物資訊</span>
+            <h2 style={{ fontSize: "1.5rem", color: "#1e293b", margin: "4px 0 0 0", fontWeight: 800 }}>
+              {analysis.intake_name}
+            </h2>
+          </div>
+          
+          <div>
+            <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }}>品牌或來源</span>
+            <p style={{ margin: "2px 0 0 0", color: "#334155", fontWeight: 600 }}>
+              {analysis.intake_brand || "未知"}
+            </p>
+          </div>
+
+          <div>
+            <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }}>數量</span>
+            <p style={{ margin: "2px 0 0 0", color: "#334155", fontWeight: 600 }}>
+              {analysis.intake_count} {analysis.original_unit}
+            </p>
+          </div>
+
+          <div style={{ gridColumn: "1 / -1" }}>
+            <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }}>總份量 (估算)</span>
+            <p style={{ margin: "2px 0 0 0", color: "#1a73e8", fontSize: "1.2rem", fontWeight: 800 }}>
+              {analysis.serving_weight} <span style={{ fontSize: "0.9rem", fontWeight: 500 }}>g / ml</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
       <h3 style={{ color: "#2E7D32", paddingLeft: 14, marginBottom: 16 }}>📊 營養分析報告</h3>
 
       {/* 🥗 1. 營養概覽 */}
       <Accordion title="營養概覽" emoji="🥗" defaultOpen={true} activeColor="#2E7D32">
         {renderSubCategory("Macronutrients", nutrients)}
         
-        {/* ✨ 食材組成清單 (對齊 Schema 中的 intake_components) */}
+        {/* ✨ 食材組成清單 */}
         {analysis.intake_components && analysis.intake_components.length > 0 && (
           <div style={{ marginTop: 20, borderTop: "1px solid #eee", paddingTop: 16 }}>
             <h5 style={{ fontSize: "0.85rem", color: "#666", marginBottom: 12, fontWeight: 600 }}>🍱 內容組成物</h5>
