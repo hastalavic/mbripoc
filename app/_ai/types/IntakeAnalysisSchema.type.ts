@@ -82,7 +82,7 @@ const basicFields = {
 
   intake_components: z
     .array(z.string())
-    .max(5)
+    .max(10)
     .default([])
     .describe("structural and ingredient components (e.g., meat, batter, sauce)"),
 

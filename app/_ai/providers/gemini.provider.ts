@@ -38,9 +38,11 @@ export class GeminiProvider implements LLMProvider {
   async call(request: LLMRequest): Promise<LLMResponse> {
     const startTime = Date.now();
 
+    // 1. 改成 v1beta
     const baseURL =
       this.config.baseURL ??
-      'https://generativelanguage.googleapis.com/v1';
+      'https://generativelanguage.googleapis.com/v1beta'; 
+
     const model = this.config.model;
 
     const body = {
@@ -55,6 +57,8 @@ export class GeminiProvider implements LLMProvider {
           request.temperature ?? this.config.temperature ?? 0.1,
         maxOutputTokens:
           request.maxTokens ?? this.config.maxTokens ?? 4096,
+        // 2. 確定使用小駝峰 responseMimeType
+        ...({ responseMimeType: "application/json" } as any),
       },
     };
 
@@ -142,7 +146,7 @@ BASIC INFORMATION
       - Extracted structural and ingredient components ONLY (e.g., meat, skin, batter, sauce, vegetable, bone-in).
       - MUST NOT include "cooking methods" (e.g., use "chicken", NOT "fried chicken").
       - SHOULD include structural elements affecting nutrition (e.g., ["chicken", "batter", "skin"]).
-      - Max length = 10. Order does not imply proportion.
+      - Max length = 30. Order does not imply proportion.
 
     original_unit:
       - If a discrete count unit (個, 份, 塊, 隻, 片, 條) is stated, use it.
@@ -153,7 +157,7 @@ INFORMATION
   Keys
     intake_name : string // food name
     intake_brand : string // brand or vendor, empty if unknown
-    intake_components : array<string> // structural components only, max length 10.
+    intake_components : array<string> // structural components only, max length 30.
     intake_count : number // numeric quantity
     original_unit : string // extracted unit label (e.g., "份", "個")
     weight_per_unit : number // weight of a single unit (g or ml)

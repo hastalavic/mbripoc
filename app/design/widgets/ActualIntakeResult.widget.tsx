@@ -1,16 +1,12 @@
-// app/design/widgets/ActualIntakeResult.widget.tsx
-
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import type { IntakeAnalysis } from "@/app/_ai/types/IntakeAnalysisSchema.type";
 import type { RegistryState_Food } from "@/app/_engine/registry/FD1.registry";
-
-/* 🔑 Element Knowledge Base & Types */
 import { ElementKnowledgeBase, ElementDefinition } from "@/app/_repository/ElementBase.constants";
 
 /* ==================================================
- * Props
+ * Props & Types
  * ================================================== */
 type Props = {
   analysis: IntakeAnalysis;
@@ -18,73 +14,75 @@ type Props = {
 };
 
 /* ==================================================
- * fmt
+ * Category Renderer (小數 1 位隱形對齊版)
  * ================================================== */
-function fmt(value?: number, maxDigits = 2) {
-  if (typeof value !== "number") return "0";
-  // 處理 JavaScript 浮點數精度問題
-  const rounded = Number(Math.round(Number(value + 'e' + maxDigits)) + 'e-' + maxDigits);
-  return String(rounded);
-}
-
-/* ==================================================
- * Styles
- * ================================================== */
-const blockStyle: React.CSSProperties = { marginTop: 22 };
-const titleStyle: React.CSSProperties = {
-  fontWeight: 700,
-  marginBottom: 8,
-  color: "#333",
-};
-
-/* ==================================================
- * Category Renderer（核心）
- * ================================================== */
-function renderCategory(
-  title: string,
-  categoryName: string,
-  // 使用索引簽名解決介面不匹配問題
-  values: { [key: string]: number | undefined } 
-) {
-  // 1. 根據類別過濾出定義好的元素
-  const entries = Object.entries(ElementKnowledgeBase).filter(
-    ([_, meta]) => {
-      const m = meta as ElementDefinition;
-      return m.isVisible && m.Category === categoryName;
-    }
+function renderSubCategory(categoryName: string, values: { [key: string]: number | undefined }) {
+  // 1. 強制類型斷言，消除 ElementKnowledgeBase 的紅蚯蚓
+  const entries = (Object.entries(ElementKnowledgeBase) as [string, ElementDefinition][]).filter(
+    ([_, meta]) => meta.isVisible && meta.Category === categoryName
   );
 
-  if (entries.length === 0) return null;
-
-  // ✨ 修正點：檢查是否有任何一個項目具備「顯著值」(>= 0.01)
-  // 若該分類下所有數值都太小或為 0，則整個分類標題都不顯示
-  const hasSignificantValue = entries.some(([key]) => {
+  const validEntries = entries.filter(([key]) => {
     const val = values[key];
     return val !== undefined && val !== null && val >= 0.01;
   });
 
-  if (!hasSignificantValue) return null;
+  if (validEntries.length === 0) return null;
 
   return (
-    <div style={blockStyle}>
-      <h4 style={titleStyle}>{title}</h4>
+    <div key={categoryName} style={{ marginTop: 12 }}>
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {entries.map(([key, meta]) => {
-          const m = meta as ElementDefinition;
-          const value = values[key];
-          
-          // ✨ 核心過濾：排除 null/undefined 以及小於 0.01 的極微量數值
-          if (value === undefined || value === null || value < 0.01) return null;
+        {validEntries.map(([key, meta]) => {
+          const value = values[key] ?? 0;
+
+          // 2. 現場處理數字拆解，避免外部函式型別推斷問題
+          const formattedValue = Number(value.toFixed(1)); 
+          const parts = formattedValue.toString().split(".");
+          const integerPart = Number(parts[0]).toLocaleString(); // 加上千分位
+          const decimalPart = parts[1] || "";
 
           return (
-            <li key={key} style={{ marginBottom: 4, fontSize: "0.9rem" }}>
-              <span style={{ color: "#4CAF50", marginRight: 6 }}>•</span>
-              <span>{m.DisplayName_zh}</span>
-              {m.DisplayName_en && (
-                <small style={{ color: "#999", marginLeft: 4 }}>({m.DisplayName_en})</small>
-              )}
-              ：<b style={{ color: "#333" }}>{fmt(value)}</b> 
-              <span style={{ fontSize: "0.8rem", color: "#666", marginLeft: 4 }}>{m.Standard_Unit}</span>
+            <li key={key} style={{ 
+              marginBottom: 10, 
+              fontSize: "0.85rem", 
+              display: "flex", 
+              alignItems: "baseline", 
+              justifyContent: "space-between" 
+            }}>
+              {/* 左側：名稱區 */}
+              <div style={{ display: "flex", flex: 1, paddingRight: 8 }}>
+                <span style={{ color: "#4CAF50", marginRight: 8 }}>•</span>
+                <span style={{ color: "#444" }}>
+                  {meta.DisplayName_zh}
+                  <small style={{ color: "#999", marginLeft: 6 }}>{meta.DisplayName_en}</small>
+                </span>
+              </div>
+
+              {/* 右側：數字與單位 (小數1位隱形對齊) */}
+              <div style={{ display: "flex", alignItems: "baseline", flexShrink: 0 }}>
+                <div style={{ 
+                  display: "flex", 
+                  justifyContent: "flex-end", 
+                  minWidth: "75px", 
+                  fontFamily: "monospace", 
+                  fontVariantNumeric: "tabular-nums" 
+                }}>
+                  <b style={{ color: "#222", fontSize: "0.95rem" }}>{integerPart}</b>
+                  <div style={{ width: "14px", textAlign: "left", color: "#222", fontSize: "0.95rem" }}>
+                    {decimalPart ? `.${decimalPart}` : ""}
+                  </div>
+                </div>
+                
+                <span style={{ 
+                  fontSize: "0.75rem", 
+                  color: "#777", 
+                  marginLeft: 8,
+                  width: "50px", 
+                  textAlign: "left"
+                }}>
+                  {meta.Standard_Unit}
+                </span>
+              </div>
             </li>
           );
         })}
@@ -94,80 +92,117 @@ function renderCategory(
 }
 
 /* ==================================================
- * Component
+ * Main Component
  * ================================================== */
-export default function ActualIntakeResultWidget({
-  analysis,
-  fd1,
-}: Props) {
+export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
   if (!analysis || !fd1) return null;
 
   const nutrients = (fd1.nutrients || {}) as { [key: string]: number | undefined };
   const mbf = (fd1.mbf || {}) as { [key: string]: number | undefined };
 
-  const components = Array.isArray(analysis.intake_components)
-    ? analysis.intake_components.filter(Boolean)
-    : [];
+  // ✨ 升級版 Accordion 組件
+  const Accordion = ({ title, emoji, children, defaultOpen = false, activeColor = "#2E7D32" }: any) => {
+    const [isOpen, setIsOpen] = useState(defaultOpen);
 
-  return (
-    <section
-      style={{
-        marginTop: 24,
-        padding: 24,
-        borderRadius: 16,
+    return (
+      <div style={{ 
+        border: "1px solid #eee",
+        borderRadius: "12px",
+        marginBottom: "12px",
+        overflow: "hidden",
         background: "#fff",
-        border: "1px solid #eaeaea",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-      }}
-    >
-      <h3 style={{ marginTop: 0, color: "#2E7D32", borderBottom: "2px solid #E8F5E9", paddingBottom: 12 }}>
-        📊 營養組成分析
-      </h3>
+        borderColor: isOpen ? activeColor : "#eee",
+        transition: "border-color 0.3s ease"
+      }}>
+        {/* 標題欄 */}
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          style={{
+            padding: "16px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            background: isOpen ? `${activeColor}10` : "#fcfcfc",
+            color: isOpen ? activeColor : "#333",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            transition: "all 0.3s ease",
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span style={{ fontSize: "1.2rem" }}>{emoji}</span>
+            {title}
+          </span>
+          
+          {/* 旋轉箭頭 */}
+          <div style={{
+            width: "24px",
+            height: "24px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "50%",
+            background: isOpen ? activeColor : "#eee",
+            color: isOpen ? "#fff" : "#999",
+            transition: "all 0.3s ease",
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+        </div>
 
-      {/* ===== 基本資訊 ===== */}
-      <div style={{ ...blockStyle, marginTop: 12, background: "#F9F9F9", padding: 12, borderRadius: 8 }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
-          <div><b>品名：</b>{analysis.intake_name}</div>
-          <div><b>份量：</b>{analysis.serving_weight} g/ml</div>
-          <div><b>類型：</b>{analysis.intake_type}</div>
-          <div><b>狀態：</b>{analysis.intake_state}</div>
+        {/* 內容區 */}
+        <div style={{
+          padding: "0 16px 16px 16px",
+          borderTop: "1px solid #f9f9f9",
+          display: isOpen ? "block" : "none",
+          animation: "fadeIn 0.3s ease",
+        }}>
+          {children}
         </div>
       </div>
+    );
+  };
 
-      {/* ===== 組成（標籤化顯示） ===== */}
-      {components.length > 0 && (
-        <div style={blockStyle}>
-          <h4 style={titleStyle}>組成成分</h4>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {components.map((c) => (
-              <span key={c} style={{ background: "#E8F5E9", color: "#2E7D32", padding: "4px 12px", borderRadius: 16, fontSize: "0.8rem", fontWeight: 500 }}>
-                {c}
-              </span>
-            ))}
-          </div>
+  return (
+    <section style={{ marginTop: 24, padding: "0 10px" }}>
+      <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+
+      <h3 style={{ color: "#2E7D32", paddingLeft: 14, marginBottom: 16 }}>📊 營養分析報告</h3>
+
+      <Accordion title="營養概覽" emoji="🥗" defaultOpen={true} activeColor="#2E7D32">
+        {renderSubCategory("Macronutrients", nutrients)}
+        <div style={{ fontSize: "0.75rem", color: "#999", marginTop: 8, borderTop: "1px dashed #eee", paddingTop: 8 }}>
+          💡 包含能量、蛋白質、總脂肪與碳水
         </div>
-      )}
+      </Accordion>
 
-      {/* ===== 營養數據自動化分組 ===== */}
-      {/* ⚠️ Category 字串與各 .constants.ts 中的定義完全對齊 */}
-      {renderCategory("大型營養素", "Macronutrients", nutrients)}
-      {renderCategory("脂肪酸組成", "FattyAcids", nutrients)}
-      {renderCategory("維生素", "Vitamins", nutrients)}
-      {renderCategory("礦物質", "Minerals", nutrients)}
-      {renderCategory("胺基酸與前驅物", "AminoAcids", nutrients)}
-      {renderCategory("生物活性成分", "Bioactives", nutrients)}
-      
-      {/* ===== 代謝負擔 (MBF) ===== */}
-      {renderCategory("代謝負擔因子 (MBF)", "MBF", mbf)}
+      <Accordion title="營養細節" emoji="🔍" activeColor="#0288D1">
+        <h5 style={{ color: "#666", marginBottom: 0, marginTop: 15 }}>油脂分析</h5>
+        {renderSubCategory("FattyAcids", nutrients)}
+        <h5 style={{ color: "#666", marginBottom: 0, marginTop: 15 }}>微量元素</h5>
+        {renderSubCategory("Vitamins", nutrients)}
+        {renderSubCategory("Minerals", nutrients)}
+        <h5 style={{ color: "#666", marginBottom: 0, marginTop: 15 }}>其他生物活性</h5>
+        {renderSubCategory("AminoAcids", nutrients)}
+        {renderSubCategory("Bioactives", nutrients)}
+      </Accordion>
 
-      {/* ===== 未知 / 無法估算 ===== */}
+      <Accordion title="代謝負擔 (MBF)" emoji="⚠️" activeColor="#D32F2F">
+        <p style={{ fontSize: "0.8rem", color: "#d32f2f", marginBottom: 10 }}>
+          偵測影響身體發炎與代謝壓力的因子：
+        </p>
+        {renderSubCategory("MBF", mbf)}
+      </Accordion>
+
       {analysis._unknown && analysis._unknown.length > 0 && (
-        <div style={{ ...blockStyle, borderTop: "1px dashed #FFCDD2", marginTop: 24, paddingTop: 16 }}>
-          <h4 style={{ ...titleStyle, color: "#C62828" }}>⚠️ AI 無法確定的項目</h4>
-          <div style={{ color: "#D32F2F", fontSize: "0.85rem", opacity: 0.8 }}>
-            以下項目因資料不足或烹飪法複雜，AI 建議僅供參考或無法估算：
-            <div style={{ marginTop: 8 }}>{analysis._unknown.join("、")}</div>
-          </div>
+        <div style={{ padding: "16px", borderRadius: "12px", background: "#FFF5F5", border: "1px solid #FED7D7", marginTop: 20 }}>
+          <h4 style={{ margin: 0, color: "#C62828", fontSize: "0.9rem" }}>⚠️ 無法確定的項目</h4>
+          <p style={{ color: "#D32F2F", fontSize: "0.8rem", marginTop: 4 }}>
+            {analysis._unknown.join("、")}
+          </p>
         </div>
       )}
     </section>

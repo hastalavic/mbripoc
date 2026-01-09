@@ -15,7 +15,7 @@
  * - 事件儲存（IntakeEvent）
  * - 圖表 / DBSG
  */
-
+export const maxDuration = 60
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
