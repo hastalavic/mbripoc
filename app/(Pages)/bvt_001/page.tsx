@@ -24,7 +24,11 @@ export default function Bvt001Page() {
   /* ==================================================
    * 🧪 DEBUG SWITCH（只依賴環境）
    * ================================================== */
+
   const IS_DEV = process.env.NODE_ENV === "development";
+
+  const DEBUG = false; // ← 要看 debug 改成 true
+
 
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState<{
