@@ -6,9 +6,7 @@ import React, { useMemo, useState } from "react";
 import type { IntakeAnalysis } from "@/app/_ai/types/IntakeAnalysisSchema.type";
 
 // 🔹 Task
-import {
-  runActualIntakeScalerTask,
-} from "@/app/_engine/tasks/ActualIntakeScaler.task";
+import { runActualIntakeScalerTask } from "@/app/_engine/tasks/ActualIntakeScaler.task";
 
 // 🔹 Compute
 import { buildMBFResults } from "@/app/_engine/computes/MBF/results/MBFresults";
@@ -24,9 +22,9 @@ import ActualIntakeResultWidget from "@/app/design/widgets/ActualIntakeResult.wi
 
 export default function Bvt001Page() {
   /* ==================================================
-   * 🧪 DEBUG SWITCH（唯一總開關）
+   * 🧪 DEBUG SWITCH（只依賴環境）
    * ================================================== */
-  const DEBUG = true; // ← 要看 debug 改成 true
+  const IS_DEV = process.env.NODE_ENV === "development";
 
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState<{
@@ -107,7 +105,7 @@ export default function Bvt001Page() {
   }, [analysis, actualIntake]);
 
   /* ==================================================
-   * 🔑 FD1 SNAPSHOT（自動焊接）
+   * 🔑 FD1 SNAPSHOT
    * ================================================== */
   const fd1 = useMemo<RegistryState_Food | null>(() => {
     if (!analysis || !actualIntake || !mbfResults) return null;
@@ -124,13 +122,7 @@ export default function Bvt001Page() {
    * Render
    * ================================================== */
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        padding: "40px 20px",
-        background: "#fcfcfc",
-      }}
-    >
+    <main style={{ minHeight: "100vh", padding: "40px 20px", background: "#fcfcfc" }}>
       <section style={{ width: "100%", maxWidth: 760, margin: "0 auto" }}>
         <header style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800 }}>
@@ -141,14 +133,7 @@ export default function Bvt001Page() {
           </p>
         </header>
 
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: 16,
-            padding: 24,
-            border: "1px solid #eee",
-          }}
-        >
+        <div style={{ background: "#fff", borderRadius: 16, padding: 24, border: "1px solid #eee" }}>
           <textarea
             value={text}
             onChange={(e) =>
@@ -165,13 +150,7 @@ export default function Bvt001Page() {
             }}
           />
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: 16,
-            }}
-          >
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 16 }}>
             <span style={{ fontSize: 13, color: "#999" }}>
               {text.length}/{maxChars}
             </span>
@@ -192,26 +171,17 @@ export default function Bvt001Page() {
             </button>
           </div>
 
-          {error && (
-            <div style={{ marginTop: 16, color: "#c53030" }}>
-              ⚠️ {error}
-            </div>
-          )}
+          {error && <div style={{ marginTop: 16, color: "#c53030" }}>⚠️ {error}</div>}
 
-          {/* ===== 正式結果（給使用者） ===== */}
+          {/* ===== 使用者結果 ===== */}
           {analysis && fd1 && (
             <div style={{ marginTop: 32 }}>
-              <ActualIntakeResultWidget
-                analysis={analysis}
-                fd1={fd1}
-              />
+              <ActualIntakeResultWidget analysis={analysis} fd1={fd1} />
             </div>
           )}
 
-          {/* ==================================================
-           * 🧪 DEBUG ZONE（工程師專用）
-           * ================================================== */}
-          {DEBUG && (
+          {/* ===== DEBUG（只在 develop） ===== */}
+          {IS_DEV && (
             <>
               <details style={{ marginTop: 32 }}>
                 <summary>🧪 Debug：AI Analysis</summary>
