@@ -13,7 +13,7 @@ export default function Footer() {
         z-50
       "
     >
-      © 2026 Enbryt — Metabolic Burden Recovery Interface
+      © 2026 Enbryt v1.0.0 — Metabolic Burden Recovery Interface
     </footer>
   );
 }

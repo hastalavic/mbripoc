@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 
 // 🔹 Types
 import type { IntakeAnalysis } from "@/app/_ai/types/IntakeAnalysisSchema.type";
@@ -24,9 +24,9 @@ import ActualIntakeResultWidget from "@/app/design/widgets/ActualIntakeResult.wi
 
 export default function Bvt001Page() {
   /* ==================================================
-   * 🧪 DEBUG SWITCH（唯一總開關）
+   * 🧪 DEBUG SWITCH
    * ================================================== */
-  const DEBUG = false; // ← 要看 debug 改成 true
+  const DEBUG = false;
 
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState<{
@@ -35,10 +35,27 @@ export default function Bvt001Page() {
   } | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // 🔹 UX 計時器 State
+  const [elapsed, setElapsed] = useState(0);
+  const ESTIMATED_TIME = 15; // 預計分析秒數
 
   const trimmed = useMemo(() => text.trim(), [text]);
   const maxChars = 500;
   const canSubmit = trimmed.length > 0;
+
+  // 🔹 計時器邏輯
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (loading) {
+      interval = setInterval(() => {
+        setElapsed((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setElapsed(0);
+    }
+    return () => clearInterval(interval);
+  }, [loading]);
 
   async function handleSubmit() {
     if (!canSubmit || loading) return;
@@ -107,7 +124,7 @@ export default function Bvt001Page() {
   }, [analysis, actualIntake]);
 
   /* ==================================================
-   * 🔑 FD1 SNAPSHOT（自動焊接）
+   * 🔑 FD1 SNAPSHOT
    * ================================================== */
   const fd1 = useMemo<RegistryState_Food | null>(() => {
     if (!analysis || !actualIntake || !mbfResults) return null;
@@ -134,7 +151,7 @@ export default function Bvt001Page() {
       <section style={{ width: "100%", maxWidth: 760, margin: "0 auto" }}>
         <header style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800 }}>
-            Enbryt 食物分析系統 v1.0
+            Enbryt AI食物分析系統
           </h1>
           <p style={{ color: "#666", marginTop: 4 }}>
             輸入食物，即時獲取營養素、代謝負擔成分等詳細分析結果。
@@ -147,14 +164,29 @@ export default function Bvt001Page() {
             borderRadius: 16,
             padding: 24,
             border: "1px solid #eee",
+            position: "relative",
+            overflow: "hidden"
           }}
         >
+          {/* 🔹 進度條效果 */}
+          {loading && (
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              height: 4,
+              background: "#1a73e8",
+              transition: "width 1s linear",
+              width: `${Math.min((elapsed / ESTIMATED_TIME) * 100, 98)}%`
+            }} />
+          )}
+
           <textarea
             value={text}
             onChange={(e) =>
               e.target.value.length <= maxChars && setText(e.target.value)
             }
-            placeholder="請輸入食物名稱與份量（例如：烤牛肉 100g 2份）..."
+            placeholder="請輸入食物描述、份量（例如：烤牛肉串 2串，每串60克）..."
             rows={4}
             style={{
               width: "100%",
@@ -162,6 +194,8 @@ export default function Bvt001Page() {
               fontSize: 16,
               borderRadius: 12,
               border: "1px solid #ddd",
+              outline: "none",
+              transition: "border-color 0.2s",
             }}
           />
 
@@ -169,12 +203,22 @@ export default function Bvt001Page() {
             style={{
               display: "flex",
               justifyContent: "space-between",
+              alignItems: "center",
               marginTop: 16,
             }}
           >
-            <span style={{ fontSize: 13, color: "#999" }}>
-              {text.length}/{maxChars}
-            </span>
+            <div>
+              <span style={{ fontSize: 13, color: "#999" }}>
+                {text.length}/{maxChars}
+              </span>
+              {loading && (
+                <span style={{ marginLeft: 12, fontSize: 13, color: "#1a73e8", fontWeight: 500 }}>
+                  {elapsed >= ESTIMATED_TIME 
+                    ? "✨ 即將完成..." 
+                    : `🚀 預計還需 ${ESTIMATED_TIME - elapsed} 秒`}
+                </span>
+              )}
+            </div>
 
             <button
               onClick={handleSubmit}
@@ -185,20 +229,23 @@ export default function Bvt001Page() {
                 border: "none",
                 background: canSubmit ? "#1a73e8" : "#ccc",
                 color: "#fff",
+                fontWeight: 600,
                 cursor: canSubmit ? "pointer" : "not-allowed",
+                transition: "all 0.2s",
+                boxShadow: canSubmit && !loading ? "0 4px 12px rgba(26,115,232,0.2)" : "none"
               }}
             >
-              {loading ? "計算中..." : "開始分析"}
+              {loading ? `分析中 ${elapsed}s` : "開始分析"}
             </button>
           </div>
 
           {error && (
-            <div style={{ marginTop: 16, color: "#c53030" }}>
+            <div style={{ marginTop: 16, padding: 12, background: "#fff5f5", borderRadius: 8, color: "#c53030", fontSize: 14 }}>
               ⚠️ {error}
             </div>
           )}
 
-          {/* ===== 正式結果（給使用者） ===== */}
+          {/* ===== 正式結果 ===== */}
           {analysis && fd1 && (
             <div style={{ marginTop: 32 }}>
               <ActualIntakeResultWidget
@@ -209,30 +256,24 @@ export default function Bvt001Page() {
           )}
 
           {/* ==================================================
-           * 🧪 DEBUG ZONE（工程師專用）
+           * 🧪 DEBUG ZONE
            * ================================================== */}
           {DEBUG && (
-            <>
-              <details style={{ marginTop: 32 }}>
-                <summary>🧪 Debug：AI Analysis</summary>
-                <pre>{JSON.stringify(analysis, null, 2)}</pre>
+            <div style={{ marginTop: 40, borderTop: "2px dashed #eee", paddingTop: 20 }}>
+              <h3 style={{ fontSize: 14, color: "#aaa", marginBottom: 12 }}>🧪 ENGINEER DEBUG CONSOLE</h3>
+              <details style={{ cursor: "pointer", marginBottom: 8 }}>
+                <summary style={{ fontSize: 13, color: "#666" }}>AI Analysis</summary>
+                <pre style={{ background: "#f4f4f4", padding: 12, fontSize: 12, overflow: "auto" }}>{JSON.stringify(analysis, null, 2)}</pre>
               </details>
-
-              <details>
-                <summary>🧪 Debug：Actual Intake</summary>
-                <pre>{JSON.stringify(actualIntake, null, 2)}</pre>
+              <details style={{ cursor: "pointer", marginBottom: 8 }}>
+                <summary style={{ fontSize: 13, color: "#666" }}>Actual Intake</summary>
+                <pre style={{ background: "#f4f4f4", padding: 12, fontSize: 12, overflow: "auto" }}>{JSON.stringify(actualIntake, null, 2)}</pre>
               </details>
-
-              <details>
-                <summary>🧪 Debug：MBF Results</summary>
-                <pre>{JSON.stringify(mbfResults, null, 2)}</pre>
+              <details style={{ cursor: "pointer" }}>
+                <summary style={{ fontSize: 13, color: "#666" }}>FD1 Snapshot</summary>
+                <pre style={{ background: "#f4f4f4", padding: 12, fontSize: 12, overflow: "auto" }}>{JSON.stringify(fd1, null, 2)}</pre>
               </details>
-
-              <details>
-                <summary>🧪 Debug：FD1 Snapshot</summary>
-                <pre>{JSON.stringify(fd1, null, 2)}</pre>
-              </details>
-            </>
+            </div>
           )}
         </div>
       </section>
