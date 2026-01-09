@@ -13,7 +13,7 @@ export default function Footer() {
         z-50
       "
     >
-      © 2025 MBRI — Metabolic Burden Recovery Interface
+      © 2026 Enbryt — Metabolic Burden Recovery Interface
     </footer>
   );
 }

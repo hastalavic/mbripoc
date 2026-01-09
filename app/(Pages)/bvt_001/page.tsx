@@ -26,7 +26,7 @@ export default function Bvt001Page() {
   /* ==================================================
    * 🧪 DEBUG SWITCH（唯一總開關）
    * ================================================== */
-  const DEBUG = true; // ← 要看 debug 改成 true
+  const DEBUG = false; // ← 要看 debug 改成 true
 
   const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState<{
