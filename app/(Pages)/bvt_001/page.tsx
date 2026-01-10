@@ -144,7 +144,7 @@ export default function Bvt001Page() {
       <section style={{ width: "100%", maxWidth: 760, margin: "0 auto" }}>
         <header style={{ marginBottom: 24 }}>
           <h1 style={{ fontSize: 26, fontWeight: 800 }}>
-            Enbryt AI食物分析系統
+            Enbryt AI食物分析工具
           </h1>
           <p style={{ color: "#666", marginTop: 4 }}>
             輸入食物，即時獲取營養素、代謝負擔成分等詳細分析結果。
