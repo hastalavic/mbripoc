@@ -1,96 +1,108 @@
-// app/(Pages)/PSP/page.tsx
-
 "use client";
 
 import MBRI, { ProfileFormState, defaultProfile } from "@/app/Barrel";
 import { useState } from "react";
 import ButtonStartPointStateGenerator from "@/app/(Pages)/PSP/components/ButtonStartPointStateGenerator.component";
+import useStartPointHistory from "@/app/(Pages)/PSP/hooks/useStartPointHistory.hook";
 
 export default function BioSetupPage() {
   const [form, setForm] = useState<ProfileFormState>(defaultProfile);
   const [pspTimestamp, setPspTimestamp] = useState<string>("");
   const [startPointTimestamp, setStartPointTimestamp] = useState<string>("");
 
-  /** * 1. 處理本地儲存邏輯 
-   * 從中解構出 updateOfficialSnapshot，用來在按下儲存鈕時更新正式快照
-   */
-  const { 
-    updateOfficialSnapshot, 
-    reset: resetLocalStorage 
-  } = MBRI.usePSPLocalStorage(form, setForm, defaultProfile);
+  // 1. 取得更新正式基準的方法
+  const { updateOfficialSnapshot } = MBRI.usePSPLocalStorage(form, setForm, defaultProfile);
+  
+  // 2. 取得初始存量歷史，用來判斷是否為新用戶
+  const { history } = useStartPointHistory();
 
-  /** * 2. 處理表單更新邏輯 
-   */
+  // 3. 表單更新邏輯
   const { update, updateNumber, resetProfile } = MBRI.usePSPForm(form, setForm);
-
-  /** * 3. 計算即時 BMI 預覽 
-   */
   const bmi = MBRI.computeBMI(form.heightCm, form.weightKg);
 
+  // 關鍵判斷：如果 history 陣列是空的，代表還沒做過 T0 Genesis 標定
+  const hasNoT0 = history.length === 0;
+
+  // 樣式定義
+  const cardStyle: React.CSSProperties = {
+    background: "#ffffff", borderRadius: "16px", padding: "24px", 
+    marginBottom: "20px", border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.02)"
+  };
+  const sectionLabelStyle: React.CSSProperties = {
+    fontSize: "0.8rem", color: "#64748b", fontWeight: 600, 
+    textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "12px",
+    display: "flex", alignItems: "center", gap: "8px"
+  };
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 py-4">
+    <div className="min-h-screen" style={{ background: "#fcfcfc" }}>
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div style={{ marginBottom: "32px" }}>
+          <h1 style={{ fontSize: "1.8rem", color: "#1e293b", fontWeight: 800 }}>👤 PSP 個人體質設定</h1>
+          <p style={{ color: "#64748b", marginTop: "8px" }}>系統會以此作為個體化計算的輸入來源。</p>
+        </div>
 
-        <MBRI.PageTitleBlock
-          title="PSP 個人體質設定"
-          description="這裡只負責定義你的身體基本參數。系統會以此作為 PSP 個體化計算的輸入來源（之後會丟入 PSP_compute）。"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-[35%_65%] gap-8">
-
-          {/* 左欄：基本資料 + PSPForm */}
+        <div className="grid grid-cols-1 md:grid-cols-[40%_60%] gap-8">
           <div className="space-y-6">
-            <MBRI.ProfileSettingsForm
-              form={form}
-              update={update}
-              updateNumber={updateNumber}
-              resetProfile={resetProfile}
-            />
-            <MBRI.PSPForm
-              form={form}
-              update={update}
-            />
+            <div style={cardStyle}>
+              <div style={sectionLabelStyle}>🧬 基本生理參數</div>
+              <MBRI.ProfileSettingsForm form={form} update={update} updateNumber={updateNumber} resetProfile={resetProfile} />
+            </div>
+
+            <div style={cardStyle}>
+              <div style={sectionLabelStyle}>⚙️ PSP 進階模型參數</div>
+              <MBRI.PSPForm form={form} update={update} />
+            </div>
             
-            {/* 生理狀態儲存區塊 */}
-            <div className="border border-zinc-300 rounded-lg p-4 space-y-4">
-              <MBRI.DateTimePicker
-                label="生理狀態記錄時間"
-                value={pspTimestamp}
-                onChange={setPspTimestamp}
-              />
-              {/* 關鍵修正：傳入 onSaved 回呼。
-                這會讓按鈕在完成資料庫寫入後，同步執行 localStorage 的正式快照更新。
-              */}
-              <MBRI.ButtonSavePSP
-                form={form}
-                timestamp={pspTimestamp}
-                onSaved={() => {
-                  updateOfficialSnapshot();
-                  alert("✅ 生理基準已正式更新！DBSG 繪圖基準已同步。");
-                }}
-              />
-            </div>
-
-            {/* 初始存量生成區塊 */}
-            <div className="space-y-4 border border-zinc-300 rounded-lg p-4">
-              <MBRI.DateTimePicker
-                label="初始存量時間"
-                value={startPointTimestamp}
-                onChange={setStartPointTimestamp}
-              />
-              <ButtonStartPointStateGenerator
-                form={form}
-                timestamp={startPointTimestamp}
-              />
-            </div>
+            {/* --- 核心邏輯切換區 --- */}
+            {hasNoT0 ? (
+              /* 🟢 模式 A：引導用戶建立起始點 (T0) */
+              <div style={{ ...cardStyle, border: "2px solid #2E7D32", background: "#f0fdf4" }}>
+                <div style={{ ...sectionLabelStyle, color: "#166534" }}>✨ 第一步：建立初始標定 (T0 Genesis)</div>
+                <p style={{ fontSize: "0.85rem", color: "#166534", marginBottom: "16px" }}>
+                  尚未建立生理基準。請先設定「初始存量時間」來計算您身體的營養初值。
+                </p>
+                <div style={{ background: "#fff", padding: "16px", borderRadius: "12px", border: "1px solid #dcfce7", marginBottom: "16px" }}>
+                  <MBRI.DateTimePicker label="初始存量標定時間" value={startPointTimestamp} onChange={setStartPointTimestamp} />
+                </div>
+                <ButtonStartPointStateGenerator form={form} timestamp={startPointTimestamp} />
+              </div>
+            ) : (
+              /* 🔵 模式 B：基準已存在，僅顯示生理狀態更新 (Tn) */
+              <div style={{ ...cardStyle, background: "#f8fafc", borderColor: "#cbd5e1" }}>
+                <div style={sectionLabelStyle}>🔄 生理狀態定期更新 (Tn)</div>
+                <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "16px" }}>
+                  初始基準已建立。若目前生理數據有變動，請在此儲存更新後的正式快照。
+                </p>
+                <div style={{ background: "#fff", padding: "16px", borderRadius: "12px", border: "1px solid #edf2f7", marginBottom: "16px" }}>
+                  <MBRI.DateTimePicker label="生理狀態記錄時間" value={pspTimestamp} onChange={setPspTimestamp} />
+                </div>
+                <MBRI.ButtonSavePSP
+                  form={form}
+                  timestamp={pspTimestamp}
+                  onSaved={() => {
+                    updateOfficialSnapshot();
+                    alert("✅ 生理基準已正式更新！");
+                  }}
+                />
+              </div>
+            )}
           </div>
 
-          {/* 右欄：Debug + Summary */}
           <div className="space-y-6">
-            <MBRI.MBRIDebugPanel form={form} />
-            <MBRI.PSPSummaryAndDebug form={form} bmi={bmi} />
+            <div style={{ ...cardStyle, background: "linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%)", color: "#fff", border: "none" }}>
+              <div style={{ ...sectionLabelStyle, color: "rgba(255,255,255,0.7)" }}>📊 即時狀態</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "12px" }}>
+                <span style={{ fontSize: "2.8rem", fontWeight: 900 }}>{bmi}</span>
+                <span style={{ fontSize: "1.1rem", opacity: 0.9 }}>BMI</span>
+              </div>
+            </div>
+            <div style={cardStyle}>
+              <div style={sectionLabelStyle}>🔍 數據監控</div>
+              <MBRI.PSPSummaryAndDebug form={form} bmi={bmi} />
+            </div>
+            <div style={{ opacity: 0.5 }}><MBRI.MBRIDebugPanel form={form} /></div>
           </div>
-
         </div>
       </main>
       <MBRI.Spacing size={50} />
