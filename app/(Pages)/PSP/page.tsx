@@ -23,6 +23,9 @@ export default function BioSetupPage() {
   // 關鍵判斷：如果 history 陣列是空的，代表還沒做過 T0 Genesis 標定
   const hasNoT0 = history.length === 0;
 
+  // 🚀 環境判斷：只有在開發模式下為 true
+  const isDev = process.env.NODE_ENV === "development";
+
   // 樣式定義
   const cardStyle: React.CSSProperties = {
     background: "#ffffff", borderRadius: "16px", padding: "24px", 
@@ -56,7 +59,6 @@ export default function BioSetupPage() {
             
             {/* --- 核心邏輯切換區 --- */}
             {hasNoT0 ? (
-              /* 🟢 模式 A：引導用戶建立起始點 (T0) */
               <div style={{ ...cardStyle, border: "2px solid #2E7D32", background: "#f0fdf4" }}>
                 <div style={{ ...sectionLabelStyle, color: "#166534" }}>✨ 第一步：建立初始標定 (T0 Genesis)</div>
                 <p style={{ fontSize: "0.85rem", color: "#166534", marginBottom: "16px" }}>
@@ -68,7 +70,6 @@ export default function BioSetupPage() {
                 <ButtonStartPointStateGenerator form={form} timestamp={startPointTimestamp} />
               </div>
             ) : (
-              /* 🔵 模式 B：基準已存在，僅顯示生理狀態更新 (Tn) */
               <div style={{ ...cardStyle, background: "#f8fafc", borderColor: "#cbd5e1" }}>
                 <div style={sectionLabelStyle}>🔄 生理狀態定期更新 (Tn)</div>
                 <p style={{ fontSize: "0.85rem", color: "#64748b", marginBottom: "16px" }}>
@@ -97,11 +98,20 @@ export default function BioSetupPage() {
                 <span style={{ fontSize: "1.1rem", opacity: 0.9 }}>BMI</span>
               </div>
             </div>
+
+            {/* ✅ 數據監控：正式版也會顯示 */}
             <div style={cardStyle}>
               <div style={sectionLabelStyle}>🔍 數據監控</div>
               <MBRI.PSPSummaryAndDebug form={form} bmi={bmi} />
             </div>
-            <div style={{ opacity: 0.5 }}><MBRI.MBRIDebugPanel form={form} /></div>
+
+            {/* 🛠️ 核心面板：僅在開發環境 (dev) 隱藏 */}
+            {isDev && (
+              <div style={{ opacity: 0.5, border: "1px dashed #94a3b8", padding: "16px", borderRadius: "16px" }}>
+                <div style={sectionLabelStyle}>🛠️ 核心面板 (Debug Only)</div>
+                <MBRI.MBRIDebugPanel form={form} />
+              </div>
+            )}
           </div>
         </div>
       </main>
