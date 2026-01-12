@@ -3,20 +3,27 @@
 
 import posthog from 'posthog-js'
 import { PostHogProvider } from 'posthog-js/react'
-import { useEffect } from 'react'
-import PostHogPageView from './PostHogPageView' // 引入剛才寫的組件
+import { useEffect, Suspense } from 'react' // 💡 引入 Suspense
+import PostHogPageView from './PostHogPageView'
 
 export function PHProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-      api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-      capture_pageview: false // 因為我們有 PostHogPageView 手動抓取，這裡設 false
-    })
+    // 💡 補上安全性檢查，確保只在瀏覽器端執行 init
+    if (typeof window !== 'undefined') {
+      posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
+        api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+        person_profiles: 'identified_only',
+        capture_pageview: false 
+      })
+    }
   }, [])
 
   return (
     <PostHogProvider client={posthog}>
-      <PostHogPageView /> {/* 放在這裡，保證只在客戶端運行 */}
+      {/* 💡 修正關鍵：用 Suspense 包裹 PostHogPageView */}
+      <Suspense fallback={null}>
+        <PostHogPageView />
+      </Suspense>
       {children}
     </PostHogProvider>
   )
