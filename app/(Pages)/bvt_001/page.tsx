@@ -1,4 +1,7 @@
+// app/(pages)/bvt_001/page.tsx
 "use client";
+
+import posthog from 'posthog-js'
 
 import React, { useMemo, useState, useEffect } from "react";
 
@@ -59,6 +62,12 @@ export default function Bvt001Page() {
   async function handleSubmit() {
     if (!canSubmit || loading) return;
 
+    // 🎯 追蹤點 1：使用者點擊按鈕
+    posthog.capture('bvt_analysis_started', {
+      input_text_length: trimmed.length,
+      estimated_wait_time: ESTIMATED_TIME
+    });
+
     setLoading(true);
     setError(null);
     setSubmitted(null);
@@ -73,13 +82,33 @@ export default function Bvt001Page() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data?.error ?? "API_ERROR");
+        const errorMsg = data?.error ?? "API_ERROR";
+        setError(errorMsg);
+
+        // 🎯 追蹤點 2：API 回傳錯誤
+        posthog.capture('bvt_analysis_failed', {
+          error_type: errorMsg,
+          input_text_length: trimmed.length
+        });
         return;
       }
 
       setSubmitted(data);
-    } catch {
+
+      // 🎯 追蹤點 3：分析成功
+      posthog.capture('bvt_analysis_success', {
+        actual_elapsed_seconds: elapsed, // 記錄實際花費秒數
+        food_category: data.data?.analysis?.category || 'unknown'
+      });
+
+    } catch (err) {
       setError("NETWORK_ERROR");
+      
+      // 🎯 建議修改：將真正的錯誤對象傳給 PostHog，方便 Debug
+      posthog.capture('bvt_analysis_error', {
+        message: "NETWORK_ERROR",
+        raw_error: err instanceof Error ? err.message : String(err)
+      });
     } finally {
       setLoading(false);
     }
