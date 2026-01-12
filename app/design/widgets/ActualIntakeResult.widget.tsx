@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import posthog from 'posthog-js' // 🎯 引入追蹤器
 import type { IntakeAnalysis } from "@/app/_ai/types/IntakeAnalysisSchema.type";
 import type { RegistryState_Food } from "@/app/_engine/registry/FD1.registry";
 import { ElementKnowledgeBase, ElementDefinition } from "@/app/_repository/ElementBase.constants";
@@ -92,8 +93,21 @@ export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
   const nutrients = (fd1.nutrients || {}) as { [key: string]: number | undefined };
   const mbf = (fd1.mbf || {}) as { [key: string]: number | undefined };
 
-  const Accordion = ({ title, emoji, children, defaultOpen = false, activeColor = "#2E7D32" }: any) => {
+  // 🎯 內部封裝的追蹤 Accordion
+  const TrackedAccordion = ({ title, emoji, children, defaultOpen = false, activeColor = "#2E7D32" }: any) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
+
+    const handleToggle = () => {
+      const nextState = !isOpen;
+      setIsOpen(nextState);
+      
+      // 🎯 埋點：追蹤區塊開合行為
+      posthog.capture('bvt_report_section_toggled', {
+        section_title: title,
+        target_state: nextState ? 'expand' : 'collapse',
+        intake_item: analysis.intake_name // 關聯當前分析的食物名稱，更有參考價值
+      });
+    };
 
     return (
       <div style={{ 
@@ -106,7 +120,7 @@ export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
         transition: "border-color 0.3s ease"
       }}>
         <div
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggle}
           style={{
             padding: "16px",
             cursor: "pointer",
@@ -156,7 +170,7 @@ export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
     <section style={{ marginTop: 24, padding: "0 10px" }}>
       <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
-      {/* 📋 整合版基本資訊看板 */}
+      {/* 📋 基本資訊看板 */}
       <div style={{ 
         background: "#f8fafc", 
         borderRadius: "16px", 
@@ -190,7 +204,6 @@ export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
             </p>
           </div>
 
-          {/* ✨ 組成物標籤 (已移至此處) */}
           {analysis.intake_components && analysis.intake_components.length > 0 && (
             <div style={{ gridColumn: "1 / -1", marginTop: "4px" }}>
               <p style={{ margin: "0 0 8px 0", fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>🍱 食材組成明細</p>
@@ -216,13 +229,12 @@ export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
 
       <h3 style={{ color: "#2E7D32", paddingLeft: 14, marginBottom: 16 }}>📊 營養分析報告</h3>
 
-      {/* 🥗 1. 營養概覽 (已移除標籤，標籤已上移) */}
-      <Accordion title="營養概覽" emoji="🥗" defaultOpen={true} activeColor="#2E7D32">
+      {/* 🥗 使用 TrackedAccordion 替代原本的 Accordion */}
+      <TrackedAccordion title="營養概覽" emoji="🥗" defaultOpen={true} activeColor="#2E7D32">
         {renderSubCategory("Macronutrients", nutrients)}
-      </Accordion>
+      </TrackedAccordion>
 
-      {/* 🔍 2. 營養細節 */}
-      <Accordion title="營養細節" emoji="🔍" activeColor="#0288D1">
+      <TrackedAccordion title="營養細節" emoji="🔍" activeColor="#0288D1">
         <h5 style={{ color: "#666", marginBottom: 0, marginTop: 15 }}>油脂分析</h5>
         {renderSubCategory("FattyAcids", nutrients)}
         <h5 style={{ color: "#666", marginBottom: 0, marginTop: 15 }}>微量元素</h5>
@@ -231,15 +243,13 @@ export default function ActualIntakeResultWidget({ analysis, fd1 }: Props) {
         <h5 style={{ color: "#666", marginBottom: 0, marginTop: 15 }}>其他生物活性</h5>
         {renderSubCategory("AminoAcids", nutrients)}
         {renderSubCategory("Bioactives", nutrients)}
-      </Accordion>
+      </TrackedAccordion>
 
-      {/* ⚠️ 3. 代謝負擔 */}
-      <Accordion title="代謝負擔 (MBF)" emoji="⚠️" activeColor="#D32F2F">
+      <TrackedAccordion title="代謝負擔 (MBF)" emoji="⚠️" activeColor="#D32F2F">
         <p style={{ fontSize: "0.8rem", color: "#d32f2f", marginBottom: 10 }}>偵測影響身體發炎與代謝壓力的因子：</p>
         {renderSubCategory("MBF", mbf)}
-      </Accordion>
+      </TrackedAccordion>
 
-      {/* ❌ 4. 無法確定項目 */}
       {analysis._unknown && analysis._unknown.length > 0 && (
         <div style={{ padding: "16px", borderRadius: "12px", background: "#FFF5F5", border: "1px solid #FED7D7", marginTop: 20 }}>
           <h4 style={{ margin: 0, color: "#C62828", fontSize: "0.9rem" }}>⚠️ 無法確定的項目</h4>
