@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import posthog from 'posthog-js' // 🎯 引入追蹤器
 import type { IntakeAnalysis } from "@/app/_ai/types/IntakeAnalysisSchema.type";
 import type { RegistryState_Food } from "@/app/_engine/registry/FD1.registry";
-import { ElementKnowledgeBase, ElementDefinition } from "@/app/_repository/ElementBase.constants";
+import { ElementKnowledgeBase, ElementDefinition } from "@/app/_repository/ElementBase.module_registry";
 
 /* ==================================================
  * Props & Types

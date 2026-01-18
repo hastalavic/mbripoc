@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
-import { ElementKnowledgeBase } from "@/app/_repository/ElementBase.constants";
+import { ElementKnowledgeBase } from "@/app/_repository/ElementBase.module_registry";
 
 /**
  * IntakeAnalysisSchema

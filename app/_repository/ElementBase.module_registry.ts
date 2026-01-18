@@ -1,4 +1,4 @@
-// app/_repository/ElementBase.constants.ts
+// app/_repository/ElementBase.module_registry.ts
 
 /**
  * Element Registry (SSOT)

@@ -14,7 +14,7 @@
  * - ✅ 將 input 轉成「可用結果」
  */
 
-import { ElementKnowledgeBase } from "@/app/_repository/ElementBase.constants";
+import { ElementKnowledgeBase } from "@/app/_repository/ElementBase.module_registry";
 import { scalePer100ByWeight } from "../computes/ActualIntakeScaler.compute";
 
 /* ==================================================
